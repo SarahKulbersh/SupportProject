@@ -23,8 +23,8 @@ export default function JobCard({ postingJobsData }) {
                                 <Card.Text>  {job.jobLocation}</Card.Text>
 
                                 <div style={{ paddingRight: '50px' }}>
-                                    <Button variant="secondary" className="float-left" style={{ backgroundColor: 'lightgray', color: 'black', border: 'none', marginRight: '10px', fontSize: '13px' }}> {job.isFullTimeJob ? "Full Time" : "Part Time"}</Button>
-                                    <Button variant="secondary" className="float-left" style={{ backgroundColor: 'lightgray', color: 'black', border: 'none', fontSize: '13px' }}>
+                                    <Button variant="secondary" className="float-left" style={{ backgroundColor: 'lightgray', color: 'black', border: 'none', marginRight: '10px', fontSize: '13px' ,cursor:'default' }}> {job.isFullTimeJob ? "Full Time" : "Part Time"}</Button>
+                                    <Button variant="secondary" className="float-left" style={{ backgroundColor: 'lightgray', color: 'black', border: 'none', fontSize: '13px', cursor:'default' }}>
                                         {job.startedTimeFrom && job.endedTimeIn ? (
                                             <>
                                                 {convertTime(job.startedTimeFrom).replace(" ", "")}{" - "}
