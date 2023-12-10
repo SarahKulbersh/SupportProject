@@ -3,12 +3,15 @@ import { Card, Button } from 'react-bootstrap';
 
 export default function JobCard({ postingJobsData }) {
 
-
     function convertTime(timeStr) {
-        const timeObj = new Date(`2023-12-10T${timeStr}:00`); // replace '2023-12-10' with your actual date
+        const [hours, minutes] = timeStr.split(":");
+        const timeObj = new Date();
+        timeObj.setHours(hours);
+        timeObj.setMinutes(minutes);
         const options = { hour: "numeric", minute: "numeric", hour12: true };
         return timeObj.toLocaleTimeString("en-US", options);
     }
+    
 
     return (
         <>
