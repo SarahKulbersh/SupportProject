@@ -3,8 +3,13 @@ import { Container } from 'react-bootstrap';
 import { SearchBox } from './searchBox'
 import { Navbar } from './navbar'
 import { RecentlyPostedJobs } from './recentlyPostedJobs';
+import { useNavigate } from 'react-router-dom';
 
 function LandingPage() {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate('/jobsList/*');
+  };
   return (
     <>
       <Navbar />
@@ -26,7 +31,7 @@ function LandingPage() {
 
       <Container style={{ backgroundColor: '#F5FAFD', padding: '15px' }}>
         <h2 style={{ marginBottom: '20px' }}>Looking for Work? Acheinu Bnei Yisrael in Chutz La’aretz are looking to hire.</h2>
-        <button className="btn btn-outline-primary">View available oppurtunities</button>
+        <button className="btn btn-outline-primary" onClick={handleClick}>View available oppurtunities</button>
       </Container>
       <br />
       <Container>

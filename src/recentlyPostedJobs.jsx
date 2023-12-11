@@ -25,6 +25,11 @@ export function RecentlyPostedJobs() {
   }, []);
 
   return (
-    <JobCard postingJobsData={postingJobsData} />
+    <div className='container'>
+      <div className='row justify-content-center'>
+
+        <JobCard postingJobsData={postingJobsData} />
+      </div>
+    </div>
   );
 }
