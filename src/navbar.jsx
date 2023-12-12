@@ -3,17 +3,17 @@ import React from 'react'
 export function Navbar() {
   return (
     <nav className="navbar navbar-expand-sm navbar-light bg-light">
-      <div class="container-fluid">
+      <div className="container-fluid">
         {/* <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="mynavbar"> */}
 
-        <div class="navbar-header">
+        <div className="navbar-header">
           <img src="logo.png" alt="Logo" width="30" height="30" className="d-inline-block align-top" />
         </div>
 
-        <ul class="nav navbar-nav navbar-right">
+        <ul className="nav navbar-nav navbar-right">
           <li className="nav-item">
             <a className="nav-link" href="#">About Us</a>
           </li>
