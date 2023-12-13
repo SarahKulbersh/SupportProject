@@ -34,10 +34,8 @@ export function PostJobForm() {
     // const [startTimePeriod, setStartTimePeriod] = useState('');
     // const [finishTimePeriod, setFinishTimePeriod] = useState('');
 
-    function handleContinueBtn(cardNumber) {
-        setCardNumber(cardNumber + 1)
-    }
-
+    function handleContinueBtn(cardNumber) {setCardNumber(cardNumber + 1)}
+    
     function handleBackBtn(cardNumber) {
         if (cardNumber === 1) {
             navigate(-1)
