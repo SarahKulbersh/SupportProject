@@ -21,7 +21,7 @@ export default function JobDetails() {
   }
 
   return (
-    <Card className='col-md-4' >
+    <Card>
       <h2>{job.jobTitle}</h2>
 
       <p>{job.startedTimeFrom && job.endedTimeIn ? (
@@ -33,7 +33,8 @@ export default function JobDetails() {
       ) : null}</p>
       <p>Job Description: {job.jobDescription}</p>
       <p>Pay: {job.jobPayment}{job.jobPaymentKind} per {job.jobPaymentPer}</p>
-      <p>Job Location: {job.jobLocation}</p>
+      {/* location causing error */}
+      {/* <p>Job Location: {job.jobLocation}</p> */}
       <p>Experience Required: {job.JobExperienceRequiredDesc}</p>
       <p>{job.isRemoteAvailable ? "Working Remotely available" : "Remote work not available"}</p>
 

@@ -21,7 +21,6 @@ export default function JobsList() {
     else
       setEstPreview("true");
 
-    console.log("estPreviw", estPreview)
   }
   useEffect(() => {
     setEstPreview(false)
@@ -75,10 +74,14 @@ export default function JobsList() {
   return (
     <>
       <SearchBox />
-      <button onClick={handleTimePreview}>{estPreview ? 'Israel Standard Time (IST)' : 'Eastern Standard Time (EST)'}</button>    <Container style={{ position: "relative" }}>
-        <JobCard postingJobsData={jobs} />
-        <JobDetails />
+      <button onClick={handleTimePreview}>{estPreview ? 'Israel Standard Time (IST)' : 'Eastern Standard Time (EST)'}</button>
+      <Container  style={{overflow: 'hidden'}}>
+        <div style={{float: 'left', width:'50%'}}>
+        <JobCard postingJobsData={jobs}  />
+        </div>
+        <JobDetails  style={{float: 'left', width:'50%'}}/>
       </Container>
+
     </>
   )
 }

@@ -4,7 +4,6 @@ import { SearchBox } from './searchBox'
 import { Navbar } from './navbar'
 import { RecentlyPostedJobs } from './recentlyPostedJobs';
 import { useNavigate } from 'react-router-dom';
-import img from './p.png'
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -27,13 +26,13 @@ function LandingPage() {
       <Container>
         <h4 className="text-center mb-3">Recently Posted Jobs</h4>
         <RecentlyPostedJobs />
-
       </Container>
 
       <Container style={{ backgroundColor: '#F5FAFD', padding: '15px' }}>
         <div className="row">
           <div className="col-md-4">
-            <img src={img} className="img-fluid" alt="Image description"></img>
+            {/* no image  src={}*/}
+            <img  className="img-fluid" alt="Image description"></img>
           </div>
 
           <div className="col-md-8">
