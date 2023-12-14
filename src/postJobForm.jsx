@@ -148,7 +148,7 @@ export function PostJobForm() {
                                 <option value={"Israel Time (IST)"}>Israel Time (IST)</option>
                             </Form.Select>
 
-                            <input type="number" class="form-control" name="numberInput" min="1" max="24" defaultValue="8" onChange={(e) => setStartHour(e.target.value)} />
+                            <input type="number" class="form-control" name="numberInput" min="1" max="23" defaultValue="8" onChange={(e) => setStartHour(e.target.value)} />
                             <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" defaultValue="00" onChange={(e) => setStartMinutes(e.target.value)} />
 
                             {/* <Form.Select required

@@ -432,7 +432,7 @@ export function JobApplyForm() {
                                 <h6>Drag and drop here, or</h6>
                                 <h6>Select a file</h6>
                                 <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
-                                <img src={imgUrl} height="200px" width="200px" alt="bla bla bla" />
+                                {/* <img src={imgUrl} height="200px" width="200px" alt="bla bla bla" /> */}
                                 <Button onClick={uploadFile} >Upload</Button>
                             </Container>
                         </Form>
