@@ -1,9 +1,12 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useId } from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
 import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
 import { idJobToApplyContext } from './Context';
+import { storage } from "./firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 
 export function JobApplyForm() {
 
@@ -14,6 +17,99 @@ export function JobApplyForm() {
     const [city, setCity] = useState('')
     const [phone, setPhone] = useState('')
     const [resumeOption, setResumeOption] = useState('')
+    //card 2
+    async function submitUserDetailsNoResume() {
+        const emailId = "docexsists7@gmail.com"
+
+        const userRef = doc(database, "persons", emailId)
+        const additionalData = {
+            city: city,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            phoneNumber: phone,
+            updatedAt: serverTimestamp()
+        }
+        try {
+            await updateDoc(userRef, additionalData);
+        } catch (error) {
+            console.error("Error submitUserDetails:", error);
+        }
+    }
+    //card 3 
+    // file uploading
+    const [imgFile, setImageFile] = useState('');
+    const [imgUrl, setImgUrl] = useState('');
+
+    async function submitUserFileDetails(fileName) {
+        const emailId = "docexsists7@gmail.com"
+
+        const userRef = doc(database, "persons", emailId)
+        const additionalData = {
+            city: city,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            phoneNumber: phone,
+            resumeFileName: fileName,
+            updatedAt: serverTimestamp()
+        }
+        try {
+            await updateDoc(userRef, additionalData);
+        } catch (error) {
+            console.error("Error submitUserDetails:", error);
+        }
+    }
+    const uploadFile = async () => {
+
+        updateIdentitiesUserApplies()
+        const myId = uuidv4()
+
+        if (imgFile != null) {
+            if ((imgFile.size / 1024) > 10) {
+                console.log(imgFile.size / 1024 / 1024 + "MB");
+                console.log(imgFile.type);
+                console.log(imgFile.name);
+                // db ref
+                const refFIle = ref(storage, "resume/" + imgFile.name + myId);
+                // uploading file bytes
+                uploadBytes(refFIle, imgFile);
+            }
+        }
+        const fileName = imgFile.name + myId
+        submitUserFileDetails(fileName)
+        navigate(-1)
+    };
+    // display single image
+    useEffect(() => {
+        // referece db
+        const displayImg = ref(storage, "/resume/img1.jpg");
+        // Get the download URL
+        getDownloadURL(displayImg)
+            .then((url) => {
+                // Insert url into an <img> tag to "download"
+                setImgUrl(url);
+            })
+            .catch((error) => {
+                switch (error.code) {
+                    case 'storage/object-not-found':
+                        // File doesn't exist
+                        break;
+                    case 'storage/unauthorized':
+                        // User doesn't have permission to access the object
+                        break;
+                    case 'storage/canceled':
+                        // User canceled the upload
+                        break;
+                    case 'storage/unknown':
+                        // Unknown error occurred, inspect the server response
+                        break;
+                    default:
+                    // default action
+                }
+            });
+    }, []);
+
     // card 4
     const [education, setEducation] = useState([
         {
@@ -41,7 +137,6 @@ export function JobApplyForm() {
             timeOfStudyToMonth: "",
             timeOfStudyToYear: ""
         }]);
-        console.log(education)
     };
     const handleDeleteInput = (index) => {
         const newArray = [...education];
@@ -83,17 +178,17 @@ export function JobApplyForm() {
     };
     //card 6
     const [skills, setSkills] = useState([])
-    const [inputValue, setInputValue] = useState('');   
+    const [inputValue, setInputValue] = useState('');
     const handleSkillInputChange = (event) => {
         setInputValue(event.target.value);
-      };
-      const addSkill = () => {
+    };
+    const addSkill = () => {
         setSkills([...skills, inputValue]);
         setInputValue('');
-      };
-      const removeSkill = (index) => {
+    };
+    const removeSkill = (index) => {
         setSkills(skills.filter((item, i) => i !== index));
-      };
+    };
     const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
 
     const navigate = useNavigate();
@@ -114,14 +209,21 @@ export function JobApplyForm() {
 
         return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
     }
-    function handleContinueBtn(cardNumber) {
-
+    const handleContinueBtn = (e) => {
+        e.preventDefault();
         if (resumeOption === 1)
             setCardNumber(3);
         else if (resumeOption === 2)
             setCardNumber(4)
-        else if (resumeOption === 3)
-            submitApply();
+        else if (resumeOption === 3) {
+            try {
+                submitUserDetailsNoResume()
+                updateIdentitiesUserApplies()
+            } catch (err) {
+                console.log(err)
+            }
+            navigate(-1)
+        }
     }
     function submitApply() {
         console.log('education length', education)
@@ -138,7 +240,7 @@ export function JobApplyForm() {
             ))
             submitUserDetails()
             updateApplyJobs()
-            updateIdentitiesUserApplyes()
+            updateIdentitiesUserApplies()
             navigate(-1)
         }
 
@@ -233,7 +335,7 @@ export function JobApplyForm() {
         const email = substrings[substrings.length - 1];
         return email;
     }
-    async function updateIdentitiesUserApplyes() {
+    async function updateIdentitiesUserApplies() {
         const persons = collection(database, "persons");
         const userRef = doc(persons, extractEmailFromDateString(jobToApplyId));
         const docId = extractDateTime(jobToApplyId)
@@ -246,7 +348,6 @@ export function JobApplyForm() {
         } catch (error) {
             console.error("Error adding document:", error);
         }
-
     }
     async function submitUserDetails() {
         const emailId = "docexsists7@gmail.com"
@@ -254,9 +355,9 @@ export function JobApplyForm() {
         const userRef = doc(database, "persons", emailId)
         const additionalData = {
             city: city,
-            createdAt: serverTimestamp(),
             email: email,
             firstName: firstName,
+            lastName: lastName,
             isActive: true,
             phoneNumber: phone,
             updatedAt: serverTimestamp()
@@ -279,11 +380,11 @@ export function JobApplyForm() {
                             <Form.Control type='text' onChange={(e) => setFirstName(e.target.value)} required />
                             <Form.Label>Last name</Form.Label>
                             <Form.Control type='text' onChange={(e) => setLastName(e.target.value)} required />
-                            <label for="email" class="form-label">Email</label>
+                            <label class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" onChange={(e) => setEmail(e.target.value)} />
                             <Form.Label>City (optional)</Form.Label>
                             <Form.Control type='text' onChange={(e) => setCity(e.target.value)} />
-                            <label for="phone" class="form-label">Phone number</label>
+                            <label class="form-label">Phone number</label>
                             <input type="text" class="form-control" id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} />
                             <br />
                             <button onClick={(e) => setCardNumber(2)} class="btn btn-primary w-100" >Continue</button>
@@ -314,7 +415,7 @@ export function JobApplyForm() {
                                 <p>We highly recommend that you provide a resume!</p>
                             </Container>
                             <br />
-                            <button class="btn btn-primary w-100" onClick={handleContinueBtn}>Continue</button>
+                            <button class="btn btn-primary w-100" onClick={(e) => handleContinueBtn(e)}>Continue</button>
 
                         </Form>
                     </Card.Body>
@@ -330,7 +431,9 @@ export function JobApplyForm() {
                             <Container class="container border border-primary rounded p-3">
                                 <h6>Drag and drop here, or</h6>
                                 <h6>Select a file</h6>
-                                <Button>Upload</Button>
+                                <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
+                                <img src={imgUrl} height="200px" width="200px" alt="bla bla bla" />
+                                <Button onClick={uploadFile} >Upload</Button>
                             </Container>
                         </Form>
                     </Card.Body>
