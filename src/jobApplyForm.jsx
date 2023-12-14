@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
+import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
+import { database } from "./firebaseConfig";
+import { useNavigate } from 'react-router-dom';
+import { idJobToApplyContext } from './Context';
 
 export function JobApplyForm() {
 
@@ -14,23 +18,41 @@ export function JobApplyForm() {
     const [educationLevel, setEducationLevel] = useState('')
     const [studyField, setStudyField] = useState('')
     const [schoolName, setSchoolName] = useState('')
-    const [schoolFromMonth, setSchoolFromMonth] = useState()
-    const [schoolToMonth, setSchoolToMonth] = useState()
-    const [schoolFromYear, setSchoolFromYear] = useState()
-    const [schoolToYear, setSchoolToYear] = useState()
+    const [educationFromMonth, setEducationFromMonth] = useState()
+    const [educationToMonth, setEducationToMonth] = useState()
+    const [educationFromYear, setEducationFromYear] = useState()
+    const [educationToYear, setEducationToYear] = useState()
     //card 5
     const [jobTitle, setJobTitle] = useState()
     const [company, setCompany] = useState()
     const [jobFromMonth, setJobFromMonth] = useState()
     const [jobToMonth, setJobToMonth] = useState()
     const [jobFromYear, setJobFromYear] = useState()
-    const [hobToYear, setJobToYear] = useState()
+    const [jobToYear, setJobToYear] = useState()
     const [jobDescription, setJobDescription] = useState()
     //card 6
     const [skills, setSkills] = useState([])
     const [skill, setSkill] = useState('')
+    const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
 
+    const navigate = useNavigate();
+
+    const userId = "docexsists6@gmail.com"
+    const [validationErrors, setValidationErrors] = useState([])
     const [cardNumber, setCardNumber] = useState(1);
+
+    const getCurrentDateTimeString = () => {
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+        const day = currentDate.getDate().toString().padStart(2, "0");
+        const hours = currentDate.getHours().toString().padStart(2, "0");
+        const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+        const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+
+        return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
+    }
     function handleContinueBtn(cardNumber) {
 
         if (resumeOption === 1)
@@ -38,19 +60,145 @@ export function JobApplyForm() {
         else if (resumeOption === 2)
             setCardNumber(4)
         else if (resumeOption === 3)
-        submitApply();
+            submitApply();
     }
 
-    function addSkill(){
+    function addSkill() {
         skills.push(skill)
-        
     }
+    function submitApply() {
+        if (validationErrors.length === 0) {
+            skills?.map(s => (
+                submitSkills(s)
+            ))
+            submitUserDetails()
+            submitEducation()
+            submitWorkHistory()
+            updateApplyJobs()
+            updateIdentitiesUserApplyes()
+            navigate(-1)
+        }
 
-    function submitApply(){
-        submitSkills()
     }
-    const submitSkills = async (e) => {
-            
+    async function submitSkills(s) {
+
+        const persons = collection(database, "persons");
+        const userRef = doc(persons, userId);
+        const words = s.split(" ");
+        const firstWord = words[0];
+        const subcollectionRef = collection(userRef, "skills");
+        try {
+            await setDoc(doc(subcollectionRef, firstWord), {
+                createdAt: serverTimestamp(),
+                skillName: s
+            });
+
+        } catch (error) {
+            console.error("Error adding document:", error);
+        }
+    }
+    async function submitEducation() {
+
+        const persons = collection(database, "persons");
+        const userRef = doc(persons, userId);
+        const DocId = `${educationFromYear}-${educationToYear}`
+        const subcollectionRef = collection(userRef, "educations");
+        try {
+            await setDoc(doc(subcollectionRef, DocId), {
+                educationLevel: educationLevel,
+                schoolName: schoolName,
+                studyName: studyField,
+                timeOfStudyFromMonth: educationFromMonth,
+                timeOfStudyFromYear: educationFromYear,
+                timeOfStudyToMonth: educationToMonth,
+                timeOfStudyToYear: educationToYear
+            });
+        } catch (error) {
+            console.error("Error adding document:", error);
+        }
+    }
+    async function submitWorkHistory() {
+
+        const persons = collection(database, "persons");
+        const userRef = doc(persons, userId);
+        const docId = `${jobFromYear}-${jobToYear}`
+        const subcollectionRef = collection(userRef, "workHistory");
+        try {
+            await setDoc(doc(subcollectionRef, docId), {
+                company: company,
+                description: jobTitle,
+                title: jobTitle,
+                timeOfStudyFromMonth: jobFromMonth,
+                timeOfWorkFromYear: jobFromYear,
+                timeOfWorkToMonth: jobToMonth,
+                timeOfWorkToYear: jobToYear
+            });
+        } catch (error) {
+            console.error("Error adding document:", error);
+        }
+    }
+    async function updateApplyJobs() {
+
+        const persons = collection(database, "persons");
+        const userRef = doc(persons, userId);
+
+        const subcollectionRef = collection(userRef, "applyJobs");
+        try {
+            await setDoc(doc(subcollectionRef, getCurrentDateTimeString()), {
+                applyId: getCurrentDateTimeString(),
+                postJobId: jobToApplyId,
+                updatedAt: serverTimestamp(),
+            });
+        } catch (error) {
+            console.error("Error adding document:", error);
+        }
+    }
+    function extractDateTime(str) {
+        const string = str + ''
+        const dateTime = string.split("_");
+        const timeAndDate = dateTime.slice(0, 6).join("_");
+        return timeAndDate;
+    }
+    function extractEmailFromDateString(dateString) {
+        const str = dateString + ''
+        const substrings = str.split('_');
+
+        const email = substrings[substrings.length - 1];
+        return email;
+    }
+    async function updateIdentitiesUserApplyes() {
+        const persons = collection(database, "persons");
+        const userRef = doc(persons, extractEmailFromDateString(jobToApplyId));
+        const docId = extractDateTime(jobToApplyId)
+        const subcollectionRef = collection(userRef, "postingJobs");
+
+        try {
+            await updateDoc(doc(subcollectionRef, docId), {
+                identitiesUserApplyes: arrayUnion(userId)
+            });
+        } catch (error) {
+            console.error("Error adding document:", error);
+        }
+
+    }
+    async function submitUserDetails() {
+        const emailId = "docexsists6@gmail.com"
+
+        const userRef = doc(database, "persons", emailId)
+        const additionalData = {
+            city: city,
+            createdAt: serverTimestamp(),
+            email: email,
+            firstName: firstName,
+            isActive: true,
+            phoneNumber: phone,
+            updatedAt: serverTimestamp()
+        }
+        try {
+            await updateDoc(userRef, additionalData);
+        } catch (error) {
+            console.error("Error submitUserDetails:", error);
+        }
     }
 
     return (
@@ -98,7 +246,7 @@ export function JobApplyForm() {
                                 <p>We highly recommend that you provide a resume!</p>
                             </Container>
                             <br />
-                            <button type="submit" class="btn btn-primary w-100" onClick={handleContinueBtn}>Continue</button>
+                            <button class="btn btn-primary w-100" onClick={handleContinueBtn}>Continue</button>
 
                         </Form>
                     </Card.Body>
@@ -137,14 +285,14 @@ export function JobApplyForm() {
                             <Form.Text>Time period</Form.Text>
                             <Form.Group>
                                 <Form.Label>From</Form.Label>
-                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setSchoolFromMonth(e.target.value)} />
-                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setSchoolFromYear(e.target.value)} />
+                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setEducationFromMonth(e.target.value)} />
+                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setEducationFromYear(e.target.value)} />
 
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>To</Form.Label>
-                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setSchoolToMonth(e.target.value)} />
-                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setSchoolToYear(e.target.value)} />
+                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setEducationToMonth(e.target.value)} />
+                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setEducationToYear(e.target.value)} />
                             </Form.Group>
                             <Button onClick={(e) => setCardNumber(5)}>Save and continue</Button>
 
@@ -207,6 +355,7 @@ export function JobApplyForm() {
                             ))}
 
                             <Button onClick={addSkill}>+</Button>
+                            <Button onClick={submitApply}>Save and continue</Button>
                         </Form>
                     </Card.Body>
                 </Card>

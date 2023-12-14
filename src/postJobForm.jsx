@@ -58,7 +58,7 @@ export function PostJobForm() {
 
     const addJobPost = async (e) => {
         const persons = collection(database, "persons");
-        const userId = "sarah5401021@gmail.com";
+        const userId = "skk@gmail.com";
         const isEst = () => {
             const selectedTime = "Eastern Time (EST)";
             return selectedTime === "Eastern Time (EST)";
@@ -66,13 +66,15 @@ export function PostJobForm() {
 
         const userRef = doc(persons, userId);
         const subcollectionRef = collection(userRef, "postingJobs");
+        const postingJobIdString = getCurrentDateTimeString()+'_'+userId;
         try {
             await setDoc(doc(subcollectionRef, getCurrentDateTimeString()), {
+                postingJobId:postingJobIdString,
                 identityUserPublishId: userId,
                 isEST: isEst(),
                 isFullTimeJob: selectedFullPart,
                 jobDescription: description,
-                jobLocation: { location },
+                jobLocation: location,
                 startedTimeFrom: `${startHour} : ${startMinutes}`,
                 endedTimeIn: `${finishHour} : ${finishMinutes}`,
                 // jobPayment : {minPay} - {maxPay}, 
