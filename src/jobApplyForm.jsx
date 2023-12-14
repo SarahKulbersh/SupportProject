@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
 import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { database } from "./firebaseConfig";
@@ -15,29 +15,90 @@ export function JobApplyForm() {
     const [phone, setPhone] = useState('')
     const [resumeOption, setResumeOption] = useState('')
     // card 4
-    const [educationLevel, setEducationLevel] = useState('')
-    const [studyField, setStudyField] = useState('')
-    const [schoolName, setSchoolName] = useState('')
-    const [educationFromMonth, setEducationFromMonth] = useState()
-    const [educationToMonth, setEducationToMonth] = useState()
-    const [educationFromYear, setEducationFromYear] = useState()
-    const [educationToYear, setEducationToYear] = useState()
+    const [education, setEducation] = useState([
+        {
+            educationLevel: "",
+            schoolName: "",
+            studyName: "",
+            timeOfStudyFromMonth: "",
+            timeOfStudyFromYear: "",
+            timeOfStudyToMonth: "",
+            timeOfStudyToYear: ""
+        }])
+    const handleChange = (event, index) => {
+        let { name, value } = event.target;
+        let onChangeValue = [...education];
+        onChangeValue[index][name] = value;
+        setEducation(onChangeValue);
+    };
+    const handleAddInput = () => {
+        setEducation([...education, {
+            educationLevel: "",
+            schoolName: "",
+            studyName: "",
+            timeOfStudyFromMonth: "",
+            timeOfStudyFromYear: "",
+            timeOfStudyToMonth: "",
+            timeOfStudyToYear: ""
+        }]);
+        console.log(education)
+    };
+    const handleDeleteInput = (index) => {
+        const newArray = [...education];
+        newArray.splice(index, 1);
+        setEducation(newArray);
+    };
     //card 5
-    const [jobTitle, setJobTitle] = useState()
-    const [company, setCompany] = useState()
-    const [jobFromMonth, setJobFromMonth] = useState()
-    const [jobToMonth, setJobToMonth] = useState()
-    const [jobFromYear, setJobFromYear] = useState()
-    const [jobToYear, setJobToYear] = useState()
-    const [jobDescription, setJobDescription] = useState()
+    const [jobs, setJobs] = useState([
+        {
+            company: "",
+            description: "",
+            timeOfWorkFromMonth: "",
+            timeOfWorkFromYear: "",
+            timeOfWorkToMonth: "",
+            timeOfWorkToYear: "",
+            title: ""
+        }])
+    const handleWorkHistoryChange = (event, index) => {
+        let { name, value } = event.target;
+        let onChangeValue = [...jobs];
+        onChangeValue[index][name] = value;
+        setJobs(onChangeValue);
+    };
+    const handleAddWorkHistoryInput = () => {
+        setJobs([...jobs, {
+            company: "",
+            description: "",
+            timeOfWorkFromMonth: "",
+            timeOfWorkFromYear: "",
+            timeOfWorkToMonth: "",
+            timeOfWorkToYear: "",
+            title: ""
+        }]);
+    };
+    const handleDeleteWorkHistoryInput = (index) => {
+        const newArray = [...jobs];
+        newArray.splice(index, 1);
+        setJobs(newArray);
+    };
     //card 6
     const [skills, setSkills] = useState([])
-    const [skill, setSkill] = useState('')
+    const [inputValue, setInputValue] = useState('');   
+    const handleSkillInputChange = (event) => {
+        setInputValue(event.target.value);
+      };
+      const addSkill = () => {
+        setSkills([...skills, inputValue]);
+        setInputValue('');
+      };
+      const removeSkill = (index) => {
+        setSkills(skills.filter((item, i) => i !== index));
+      };
     const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
 
     const navigate = useNavigate();
 
-    const userId = "docexsists6@gmail.com"
+    const userId = "docexsists7@gmail.com"
     const [validationErrors, setValidationErrors] = useState([])
     const [cardNumber, setCardNumber] = useState(1);
 
@@ -62,18 +123,20 @@ export function JobApplyForm() {
         else if (resumeOption === 3)
             submitApply();
     }
-
-    function addSkill() {
-        skills.push(skill)
-    }
     function submitApply() {
+        console.log('education length', education)
+
         if (validationErrors.length === 0) {
             skills?.map(s => (
                 submitSkills(s)
             ))
+            education?.map(e => (
+                submitEducation(e)
+            ))
+            jobs?.map(job => (
+                submitWorkHistory(job)
+            ))
             submitUserDetails()
-            submitEducation()
-            submitWorkHistory()
             updateApplyJobs()
             updateIdentitiesUserApplyes()
             navigate(-1)
@@ -97,41 +160,45 @@ export function JobApplyForm() {
             console.error("Error adding document:", error);
         }
     }
-    async function submitEducation() {
-
+    async function submitEducation(e) {
+        console.log("trying to submit education")
         const persons = collection(database, "persons");
         const userRef = doc(persons, userId);
-        const DocId = `${educationFromYear}-${educationToYear}`
+        const DocId = `${e.timeOfStudyFromYear}-${e.timeOfStudyToYear}`
         const subcollectionRef = collection(userRef, "educations");
+
         try {
             await setDoc(doc(subcollectionRef, DocId), {
-                educationLevel: educationLevel,
-                schoolName: schoolName,
-                studyName: studyField,
-                timeOfStudyFromMonth: educationFromMonth,
-                timeOfStudyFromYear: educationFromYear,
-                timeOfStudyToMonth: educationToMonth,
-                timeOfStudyToYear: educationToYear
+                educationLevel: e.educationLevel,
+                schoolName: e.schoolName,
+                studyName: e.studyName,
+                timeOfStudyFromMonth: e.timeOfStudyFromMonth,
+                timeOfStudyFromYear: e.timeOfStudyFromYear,
+                timeOfStudyToMonth: e.timeOfStudyToMonth,
+                timeOfStudyToYear: e.timeOfStudyToYear
             });
         } catch (error) {
             console.error("Error adding document:", error);
         }
     }
-    async function submitWorkHistory() {
+    async function submitWorkHistory(job) {
 
+        console.log(job)
+        console.log(job.timeOfWorkFromYear)
         const persons = collection(database, "persons");
         const userRef = doc(persons, userId);
-        const docId = `${jobFromYear}-${jobToYear}`
+        const docId = `${job.timeOfWorkFromYear}-${job.timeOfWorkToYear}`
+        console.log('docId', docId)
         const subcollectionRef = collection(userRef, "workHistory");
         try {
             await setDoc(doc(subcollectionRef, docId), {
-                company: company,
-                description: jobTitle,
-                title: jobTitle,
-                timeOfStudyFromMonth: jobFromMonth,
-                timeOfWorkFromYear: jobFromYear,
-                timeOfWorkToMonth: jobToMonth,
-                timeOfWorkToYear: jobToYear
+                company: job.company,
+                description: job.description,
+                title: job.title,
+                timeOfWorkFromMonth: job.timeOfWorkFromMonth,
+                timeOfWorkFromYear: job.timeOfWorkFromYear,
+                timeOfWorkToMonth: job.timeOfWorkToMonth,
+                timeOfWorkToYear: job.timeOfWorkToYear
             });
         } catch (error) {
             console.error("Error adding document:", error);
@@ -182,7 +249,7 @@ export function JobApplyForm() {
 
     }
     async function submitUserDetails() {
-        const emailId = "docexsists6@gmail.com"
+        const emailId = "docexsists7@gmail.com"
 
         const userRef = doc(database, "persons", emailId)
         const additionalData = {
@@ -228,6 +295,7 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body>
                         <Form>
+                            <Button onClick={(e) => setCardNumber(1)}>Back</Button>
                             <h3>Add a resume for the employer</h3>
 
                             <Container type='button' style={{ border: 'solid 1px navy', padding: '10px', borderRadius: '15px' }} onClick={(e) => setResumeOption(1)}>
@@ -253,10 +321,10 @@ export function JobApplyForm() {
                 </Card>
             }
             {cardNumber === 3 &&
-
                 <Card>
                     <Card.Body>
                         <Form>
+                            <Button onClick={(e) => setCardNumber(2)}>Back</Button>
                             <h5>Upload a resume</h5>
                             <h6>Acceptable files: docx,pdf</h6>
                             <Container class="container border border-primary rounded p-3">
@@ -272,28 +340,40 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body>
                         <Form>
+                            <Button onClick={(e) => setCardNumber(2)}>Back</Button>
+
                             <h4>Build your resume (1 of 4)</h4>
                             <h4>Do you want to add any education details?</h4>
+                            {education?.map((e, index) => (
+                                <div key={index}>
+                                    <Form.Label>Level of education *</Form.Label>
+                                    <Form.Control type='text' name='educationLevel' required value={e.educationLevel} onChange={(e) => handleChange(e, index)} />
+                                    <Form.Label>Field of study</Form.Label>
+                                    <Form.Control type='text' name='studyName' required value={e.studyField} onChange={(e) => handleChange(e, index)} />
+                                    <Form.Label>Name of school</Form.Label>
+                                    <Form.Control type='text' name='schoolName' required value={e.schoolName} onChange={(e) => handleChange(e, index)} />
 
-                            <Form.Label>Level of education *</Form.Label>
-                            <Form.Control type='text' required onChange={(e) => setEducationLevel(e.target.value)} />
-                            <Form.Label>Field of study</Form.Label>
-                            <Form.Control type='text' required onChange={(e) => setStudyField(e.target.value)} />
-                            <Form.Label>Name of school</Form.Label>
-                            <Form.Control type='text' required onChange={(e) => setSchoolName(e.target.value)} />
+                                    <Form.Text>Time period</Form.Text>
+                                    <Form.Group>
+                                        <Form.Label>From</Form.Label>
+                                        <input type="number" name='timeOfStudyFromMonth' value={e.educationFromMonth} class="form-control" min="1" max="12" placeholder='Month' onChange={(e) => handleChange(e, index)} />
+                                        <input type="number" name='timeOfStudyFromYear' value={e.educationFromYear} class="form-control" min="1960" max="2024" placeholder='Year' onChange={(e) => handleChange(e, index)} />
 
-                            <Form.Text>Time period</Form.Text>
-                            <Form.Group>
-                                <Form.Label>From</Form.Label>
-                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setEducationFromMonth(e.target.value)} />
-                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setEducationFromYear(e.target.value)} />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>To</Form.Label>
+                                        <input type="number" name='timeOfStudyToMonth' value={e.educationToMonth} class="form-control" min="1" max="12" placeholder='Month' onChange={(e) => handleChange(e, index)} />
+                                        <input type="number" name='timeOfStudyToYear' value={e.educationToYear} class="form-control" min="1960" max="2024" placeholder='Year' onChange={(e) => handleChange(e, index)} />
+                                    </Form.Group>
+                                    {education.length > 1 && (
+                                        <Button onClick={() => handleDeleteInput(index)}>Delete</Button>
+                                    )}
+                                    {index === education.length - 1 && (
+                                        <button onClick={() => handleAddInput()}>Add</button>
+                                    )}
+                                </div>
+                            ))}
 
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>To</Form.Label>
-                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setEducationToMonth(e.target.value)} />
-                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setEducationToYear(e.target.value)} />
-                            </Form.Group>
                             <Button onClick={(e) => setCardNumber(5)}>Save and continue</Button>
 
                         </Form>
@@ -304,37 +384,52 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body>
                         <Form>
+                            <Button onClick={(e) => setCardNumber(4)}>Back</Button>
+
                             <Form.Text>Do you want to add work history?</Form.Text>
-                            <Form.Group>
-                                <Form.Label>Job title *</Form.Label>
-                                <Form.Control type='text' required onChange={(e) => setJobTitle(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Company</Form.Label>
-                                <Form.Control type='text' required onChange={(e) => setCompany(e.target.value)} />
-                            </Form.Group>
-                            <Form.Text>Time period</Form.Text>
-                            <Form.Group>
-                                <Form.Label>From</Form.Label>
-                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setJobFromMonth(e.target.value)} />
-                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setJobFromYear(e.target.value)} />
+                            {jobs?.map((job, index) => (
+                                <div key={index}>
+                                    <Form.Group>
+                                        <Form.Label>Job title *</Form.Label>
+                                        <Form.Control type='text' name='title' value={job.title} required onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Company</Form.Label>
+                                        <Form.Control type='text' name='company' value={job.company} required onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                    </Form.Group>
+                                    <Form.Text>Time period</Form.Text>
+                                    <Form.Group>
+                                        <Form.Label>From</Form.Label>
+                                        <input type="number" class="form-control" name='timeOfWorkFromMonth' value={job.timeOfWorkFromMonth} min="1" max="12" placeholder='Month' onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                        <input type="number" class="form-control" name='timeOfWorkFromYear' value={job.timeOfWorkFromYear} min="1960" max="2024" placeholder='Year' onChange={(e) => handleWorkHistoryChange(e, index)} />
 
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>To</Form.Label>
-                                <input type="number" class="form-control" name="numberInput" min="1" max="12" placeholder='Month' onChange={(e) => setJobToMonth(e.target.value)} />
-                                <input type="number" class="form-control" name="numberInput" min="1960" max="2024" placeholder='Year' onChange={(e) => setJobToYear(e.target.value)} />
-                            </Form.Group>
-                            <Form.Label>Description</Form.Label>
-                            <br />
-                            <Form.Text>Describe your position and any significant accomplishments</Form.Text>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>To</Form.Label>
+                                        <input type="number" class="form-control" name='timeOfWorkToMonth' value={job.timeOfWorkToMonth} min="1" max="12" placeholder='Month' onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                        <input type="number" class="form-control" name='timeOfWorkToYear' value={job.timeOfWorkToYear} min="1960" max="2024" placeholder='Year' onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                    </Form.Group>
+                                    <Form.Label>Description</Form.Label>
+                                    <br />
+                                    <Form.Text>Describe your position and any significant accomplishments</Form.Text>
 
-                            <textarea
-                                className="form-control"
-                                id="exampleFormControlTextarea1"
-                                rows="5"
-                                onChange={(e) => setJobDescription(e.target.value)}
-                            />
+                                    <textarea
+                                        className="form-control"
+                                        id="exampleFormControlTextarea1"
+                                        rows="5"
+                                        name='description'
+                                        value={job.description}
+                                        onChange={(e) => handleWorkHistoryChange(e, index)}
+                                    />
+                                    {jobs.length > 1 && (
+                                        <Button onClick={() => handleDeleteWorkHistoryInput(index)}>Delete</Button>
+                                    )}
+                                    {index === jobs.length - 1 && (
+                                        <Button onClick={() => handleAddWorkHistoryInput()}>Add</Button>
+                                    )}
+
+                                </div>
+                            ))}
 
                             <Button onClick={(e) => setCardNumber(6)}>Save and continue</Button>
 
@@ -346,15 +441,22 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body>
                         <Form>
+                            <Button onClick={(e) => setCardNumber(5)}>Back</Button>
+
                             <p>Build your resume (3 of 4)</p>
                             <label for="phone" class="form-label">Do you want to share some of your skills?</label>
                             <Form.Text>we recommend adding at least 6 skills</Form.Text>
-                            <input type="text" class="form-control" placeholder='Add a skill' onChange={(e) => setSkill(e.target.value)} />
-                            {skills?.map(skill => (
-                                <h4>{skill}</h4>
+                            <input type="text" class="form-control" placeholder='Add a skill' value={inputValue} onChange={handleSkillInputChange} />
+                            {skills?.map((skill, index) => (
+                                <div key={index}>
+                                    <h4>{skill}</h4>
+                                    {skills.length > 1 && (
+                                        <Button onClick={() => removeSkill(index)}>Delete</Button>
+                                    )}
+                                </div>
                             ))}
+                            <Button onClick={addSkill}>Add</Button>
 
-                            <Button onClick={addSkill}>+</Button>
                             <Button onClick={submitApply}>Save and continue</Button>
                         </Form>
                     </Card.Body>

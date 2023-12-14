@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Card, Button } from 'react-bootstrap';
-import { JobContext, EstPreviewContext } from './Context';
+import { JobContext, EstPreviewContext, idJobToApplyContext } from './Context';
+import { useNavigate } from 'react-router-dom';
 
 export default function JobCard({ postingJobsData }) {
 
-  const { estPreview, setEstPreview } = useContext(EstPreviewContext)
+  const navigate = useNavigate();
 
+  const { estPreview, setEstPreview } = useContext(EstPreviewContext)
+  const {jobToApplyId, setJobToApplyId} = useContext(idJobToApplyContext)
   const { job, setJob } = useContext(JobContext);
   const [hasData, setHasData] = useState(false);
 
@@ -59,6 +62,12 @@ export default function JobCard({ postingJobsData }) {
     }
   }
 
+  function handleApply (jobId){
+    setJobToApplyId(jobId)
+    console.log(jobId)
+    navigate('/apply')
+    
+  }
   return (
     <>
       {postingJobsData?.map(job => (
@@ -85,7 +94,7 @@ export default function JobCard({ postingJobsData }) {
 
             <Card.Text>  {job.jobDescription}</Card.Text>
 
-            <Button variant="primary" className="float-end">Apply</Button>
+            <Button variant="primary" className="float-end" onClick={() =>handleApply(job.postingJobId)}>Apply</Button>
           </div>
         </Card>
       ))}
