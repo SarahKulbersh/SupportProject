@@ -8,7 +8,7 @@ export default function JobCard({ postingJobsData }) {
   const navigate = useNavigate();
 
   const { estPreview, setEstPreview } = useContext(EstPreviewContext)
-  const {jobToApplyId, setJobToApplyId} = useContext(idJobToApplyContext)
+  const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
   const { job, setJob } = useContext(JobContext);
   const [hasData, setHasData] = useState(false);
 
@@ -62,11 +62,11 @@ export default function JobCard({ postingJobsData }) {
     }
   }
 
-  function handleApply (jobId){
+  function handleApply(jobId) {
     setJobToApplyId(jobId)
     console.log(jobId)
     navigate('/apply')
-    
+
   }
   return (
     <>
@@ -92,9 +92,14 @@ export default function JobCard({ postingJobsData }) {
               </Button>
             </div>
 
-            <Card.Text>  {job.jobDescription}</Card.Text>
+            <Card.Text>  {job.jobDescription
+              .replace(/<br\s*\/?>/gm, " ")
+              .split("\n")
+              .join(" ")
+              .substring(0, 150) + "..."}
+            </Card.Text>
 
-            <Button variant="primary" className="float-end" onClick={() =>handleApply(job.postingJobId)}>Apply</Button>
+            <Button variant="primary" className="float-end" onClick={() => handleApply(job.postingJobId)}>Apply</Button>
           </div>
         </Card>
       ))}

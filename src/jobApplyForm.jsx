@@ -3,12 +3,16 @@ import { Card, Button, Container, Form } from 'react-bootstrap';
 import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
-import { idJobToApplyContext } from './Context';
+import { idJobToApplyContext, userIdContext } from './Context';
 import { storage } from "./firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 
+
 export function JobApplyForm() {
+
+    // const {userId, setUserId} = useContext(userIdContext);
+    const userId = localStorage.getItem("userId");
 
     // card 1
     const [firstName, setFirstName] = useState('')
@@ -193,7 +197,6 @@ export function JobApplyForm() {
 
     const navigate = useNavigate();
 
-    const userId = "docexsists7@gmail.com"
     const [validationErrors, setValidationErrors] = useState([])
     const [cardNumber, setCardNumber] = useState(1);
 
@@ -219,6 +222,7 @@ export function JobApplyForm() {
             try {
                 submitUserDetailsNoResume()
                 updateIdentitiesUserApplies()
+                updateApplyJobs()
             } catch (err) {
                 console.log(err)
             }
@@ -377,15 +381,15 @@ export function JobApplyForm() {
                         <Form>
                             <h4>Add your contact information</h4>
                             <Form.Label>First name</Form.Label>
-                            <Form.Control type='text' onChange={(e) => setFirstName(e.target.value)} required />
+                            <Form.Control type='text' onChange={(e) => setFirstName(e.target.value)} required value={firstName} />
                             <Form.Label>Last name</Form.Label>
-                            <Form.Control type='text' onChange={(e) => setLastName(e.target.value)} required />
+                            <Form.Control type='text' onChange={(e) => setLastName(e.target.value)} required value={lastName} />
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" onChange={(e) => setEmail(e.target.value)} />
+                            <input type="email" class="form-control" id="email" name="email" onChange={(e) => setEmail(e.target.value)} defaultValue={userId} readOnly />
                             <Form.Label>City (optional)</Form.Label>
                             <Form.Control type='text' onChange={(e) => setCity(e.target.value)} />
                             <label class="form-label">Phone number</label>
-                            <input type="text" class="form-control" id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} />
+                            <input type="text" class="form-control" id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} />
                             <br />
                             <button onClick={(e) => setCardNumber(2)} class="btn btn-primary w-100" >Continue</button>
                         </Form>

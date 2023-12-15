@@ -34,8 +34,8 @@ export function PostJobForm() {
     // const [startTimePeriod, setStartTimePeriod] = useState('');
     // const [finishTimePeriod, setFinishTimePeriod] = useState('');
 
-    function handleContinueBtn(cardNumber) {setCardNumber(cardNumber + 1)}
-    
+    function handleContinueBtn(cardNumber) { setCardNumber(cardNumber + 1) }
+
     function handleBackBtn(cardNumber) {
         if (cardNumber === 1) {
             navigate(-1)
@@ -66,10 +66,10 @@ export function PostJobForm() {
 
         const userRef = doc(persons, userId);
         const subcollectionRef = collection(userRef, "postingJobs");
-        const postingJobIdString = getCurrentDateTimeString()+'_'+userId;
+        const postingJobIdString = getCurrentDateTimeString() + '_' + userId;
         try {
             await setDoc(doc(subcollectionRef, getCurrentDateTimeString()), {
-                postingJobId:postingJobIdString,
+                postingJobId: postingJobIdString,
                 identityUserPublishId: userId,
                 isEST: isEst(),
                 isFullTimeJob: selectedFullPart,
@@ -77,6 +77,8 @@ export function PostJobForm() {
                 jobLocation: location,
                 startedTimeFrom: `${startHour} : ${startMinutes}`,
                 endedTimeIn: `${finishHour} : ${finishMinutes}`,
+                minPay: minPay,
+                maxPay: maxPay,
                 // jobPayment : {minPay} - {maxPay}, 
                 jobPaymentPer: selectedRatePer,
                 jobTitle: jobTitle,
@@ -101,11 +103,11 @@ export function PostJobForm() {
                         <Form>
                             <Form.Group id='jobTitle'>
                                 <Form.Label>Job title *</Form.Label>
-                                <Form.Control type='text' required onChange={(e) => setJobTitle(e.target.value)} />
+                                <Form.Control type='text' required onChange={(e) => setJobTitle(e.target.value)} value={jobTitle}/>
                             </Form.Group>
                             <Form.Group id='location'>
                                 <Form.Label>Where is your company located *</Form.Label>
-                                <Form.Control type='text' required onChange={(e) => setLocation(e.target.value)} />
+                                <Form.Control type='text' required onChange={(e) => setLocation(e.target.value)} value={location}/>
                             </Form.Group>
                             <Button className='btn btn-primary float-left' style={{ marginTop: '15px' }} onClick={() => handleBackBtn(1)}>Back</Button>
                             <Button className='float-end' style={{ marginTop: '15px' }} onClick={() => handleContinueBtn(1)}>continue</Button>
@@ -148,8 +150,8 @@ export function PostJobForm() {
                                 <option value={"Israel Time (IST)"}>Israel Time (IST)</option>
                             </Form.Select>
 
-                            <input type="number" class="form-control" name="numberInput" min="1" max="23" defaultValue="8" onChange={(e) => setStartHour(e.target.value)} />
-                            <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" defaultValue="00" onChange={(e) => setStartMinutes(e.target.value)} />
+                            <input type="number" class="form-control" name="numberInput" min="1" max="23" defaultValue="8" onChange={(e) => setStartHour(e.target.value)} value={startHour}/>
+                            <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" defaultValue="00" onChange={(e) => setStartMinutes(e.target.value)} value={startMinutes}/>
 
                             {/* <Form.Select required
                                 value={startTimePeriod}
@@ -160,8 +162,8 @@ export function PostJobForm() {
                             <option>PM</option>
                             </Form.Select> */}
 
-                            <input type="number" class="form-control" name="numberInput" min="1" max="12" defaultValue="8" onChange={(e) => setFinishHour(e.target.value)} />
-                            <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" defaultValue="00" onChange={(e) => setFinishMinutes(e.target.value)} />
+                            <input type="number" class="form-control" name="numberInput" min="1" max="12" defaultValue="8" onChange={(e) => setFinishHour(e.target.value)} value={finishHour} />
+                            <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" defaultValue="00" onChange={(e) => setFinishMinutes(e.target.value)} value={finishMinutes} />
 
                             {/* <Form.Select required
                                 value={finishTimePeriod}
@@ -188,6 +190,7 @@ export function PostJobForm() {
                                 <Form.Label>Job description *</Form.Label>
 
                                 <textarea
+                                    value={description}
                                     className="form-control"
                                     id="exampleFormControlTextarea1"
                                     rows="5"
@@ -226,11 +229,11 @@ export function PostJobForm() {
 
                                 <Form.Label>Minimum</Form.Label>
 
-                                <Form.Control type='text' required onChange={(e) => setMinPay(e.target.value)} />
+                                <Form.Control type='text' required onChange={(e) => setMinPay(e.target.value)} value={minPay}/>
 
                                 <p>to</p>
                                 <Form.Label>Maximum</Form.Label>
-                                <Form.Control type='text' required onChange={(e) => setMaxPay(e.target.value)} />
+                                <Form.Control type='text' required onChange={(e) => setMaxPay(e.target.value)} value={maxPay}/>
 
                             </Form.Group>
 
@@ -267,14 +270,15 @@ export function PostJobForm() {
                 <Card style={{ padding: '40px' }}>
                     <Card.Body>
                         <Form>
-                            <h1>{jobTitle}</h1>
-                            <h5>{selectedShowPay}</h5>
-                            <h1>{selectedFullPart}</h1>
-                            <h1>{description}</h1>
-                            <h5>{startTime}-{endTime}</h5>
-                            <h5>{minPay}-{maxPay}</h5>
-                            <h3>{selectedTime}</h3>
-                            <h3>{selectedRatePer}</h3>
+                            <h4>{jobTitle}</h4>
+                            <h6>Show pay: {selectedShowPay}</h6>
+                            <h6>Pay: {minPay}-{maxPay} {selectedRatePer}</h6>
+                            <h6>Full/part time: {selectedFullPart}</h6>
+                            <h6>Hours: {startTime}-{endTime}</h6>
+                            <p>Description:  {description.split("<br/>").map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                            </p>
                             <Button className='btn btn-primary float-left' onClick={() => handleBackBtn(5)} style={{ marginTop: '15px' }}>Back</Button>
                             {/* i think there is an issue with this button being type=submit button: */}
                             <Button className='btn btn-primary float-end' onClick={() => addJobPost()} style={{ marginTop: '15px' }}>Submit</Button>

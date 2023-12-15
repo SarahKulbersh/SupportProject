@@ -1,10 +1,30 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { userAuth, userAuthWithGoogle, database } from "./firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, addDoc } from "firebase/firestore";
+import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc, arrayUnion, addDoc } from "firebase/firestore";
+import * as CryptoJS from 'crypto-js'
+import { userIdContext } from "./Context";
 
 export const UserLogin = () => {
+ 
+    const navigate = useNavigate();
 
+    const { userId, setUserId } = useContext(userIdContext);
+    useEffect(() => {
+        console.log(userId);
+        // navigate(-1)
+      }, [userId]);
+    const secretKey = process.env.REACT_APP_SECRET_KEY ? process.env.REACT_APP_SECRET_KEY : '12345'
+    const encrypt = (plainText) => {
+        const cipherText = CryptoJS.AES.encrypt(plainText, secretKey).toString()
+        return cipherText
+    }
+    const decrypt = (cipherText) => {
+        const bytes = CryptoJS.AES.decrypt(cipherText, secretKey)
+        const plainText = bytes.toString(CryptoJS.enc.Utf8)
+        return plainText
+    }
     const submitUserDetails = async (userEmail, userPassword) => {
 
 
@@ -16,7 +36,7 @@ export const UserLogin = () => {
                 signInAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
                 uid: userEmail,
-                uPassword: userPassword,
+                uPassword: encrypt(userPassword),
 
             });
         } catch (error) {
@@ -36,17 +56,30 @@ export const UserLogin = () => {
         });
     };
 
-    // sign in
     const signIn = async () => {
-        await signInWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
-            const userCred = userCredential.userCredential;
-            alert(userCred.user);
+        try {
+            // Retrieve the user document from the database
+            const userDoc = doc(database, "persons", userEmail);
+            const userSnap = await getDoc(userDoc);
+            const userData = userSnap.data();
+            console.log(userData);
 
-        }).catch((err) => {
-
-            alert(err.code);
-            alert(err.message);
-        });
+            if (userData) {
+                const decryptedPassword = decrypt(userData.uPassword);
+                if (userPassword === decryptedPassword) {
+                    const userCredential = await signInWithEmailAndPassword(userAuth, userEmail, userPassword);
+                    const userCred = userCredential.user;
+                    localStorage.setItem("userId", userEmail);
+                    navigate(-1)
+                } else {
+                    alert("Invalid password");
+                }
+            } else {
+                alert("User does not exist");
+            }
+        } catch (error) {
+            console.error("Error signing in:", error.code, error.message);
+        }
     };
 
     // sign in with google
