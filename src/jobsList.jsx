@@ -8,6 +8,9 @@ import JobDetails from './jobDetails';
 import { Container } from 'react-bootstrap';
 import { SearchBox } from './searchBox';
 import { EstPreviewContext } from './Context';
+import "./styles/jobResults.css"
+import { applyIcon, searchIcon } from './assets'
+import NavBar from "./components/NavBar";
 
 export default function JobsList() {
 
@@ -29,7 +32,7 @@ export default function JobsList() {
   useEffect(() => {
     async function fetchJobs() {
       const fetchedJobs = await searchJobs(searchTerm);
-      console.log(fetchedJobs)
+      console.log("fetchedJobs", fetchedJobs)
       setJobs(fetchedJobs)
     }
     fetchJobs();
@@ -49,12 +52,12 @@ export default function JobsList() {
       else {
         const filteredJobs = postingJobsSubcollection.docs.filter(doc => {
           const jobData = doc.data();
-          const normalizedJobTitle = jobData.jobTitle.toLowerCase();
-          const normalizedJobDescription = jobData.jobDescription.toLowerCase();
+          const normalizedJobTitle = jobData.jobTitle?.toLowerCase();
+          const normalizedJobDescription = jobData.jobDescription?.toLowerCase();
           const normalizedSearchTerm = searchTerm.toLowerCase();
 
-          const jobTitleMatch = normalizedJobTitle.includes(normalizedSearchTerm);
-          const jobDescriptionMatch = normalizedJobDescription.includes(normalizedSearchTerm);
+          const jobTitleMatch = normalizedJobTitle?.includes(normalizedSearchTerm);
+          const jobDescriptionMatch = normalizedJobDescription?.includes(normalizedSearchTerm);
 
           return (
             (jobTitleMatch || jobDescriptionMatch) &&
@@ -73,15 +76,29 @@ export default function JobsList() {
 
   return (
     <>
-      <SearchBox />
-      <button onClick={handleTimePreview}>{estPreview ? 'Israel Standard Time (IST)' : 'Eastern Standard Time (EST)'}</button>
-      <Container  style={{overflow: 'hidden'}}>
-        <div style={{float: 'left', width:'50%'}}>
-        <JobCard postingJobsData={jobs}  />
-        </div>
-        <JobDetails  style={{float: 'left', width:'50%'}}/>
-      </Container>
+      <div>
+        <NavBar />
 
+        <div className='job_results'>
+
+          <SearchBox />
+          <div>
+            <div className='letssupport'>Show me job times in</div>
+            <div className='job_result_zone'>
+              <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === "false" ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
+              <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === "true" ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
+            </div>
+          </div>
+          <div className='job_result_box'>
+            <div className='recent_job_list'>
+              <JobCard postingJobsData={jobs} />
+            </div>
+            <JobDetails />
+
+          </div>
+
+        </div >
+      </div>
     </>
   )
 }

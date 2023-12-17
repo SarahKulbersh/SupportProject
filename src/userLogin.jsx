@@ -1,21 +1,16 @@
-import { useState, useContext, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { userAuth, userAuthWithGoogle, database } from "./firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc, arrayUnion, addDoc } from "firebase/firestore";
+import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import * as CryptoJS from 'crypto-js'
-import { userIdContext } from "./Context";
 
 export const UserLogin = () => {
- 
+
     const navigate = useNavigate();
 
-    const { userId, setUserId } = useContext(userIdContext);
-    useEffect(() => {
-        console.log(userId);
-        // navigate(-1)
-      }, [userId]);
     const secretKey = process.env.REACT_APP_SECRET_KEY ? process.env.REACT_APP_SECRET_KEY : '12345'
+
     const encrypt = (plainText) => {
         const cipherText = CryptoJS.AES.encrypt(plainText, secretKey).toString()
         return cipherText
@@ -26,8 +21,6 @@ export const UserLogin = () => {
         return plainText
     }
     const submitUserDetails = async (userEmail, userPassword) => {
-
-
         try {
             await setDoc(doc(database, "persons", userEmail), {
                 createdAt: serverTimestamp(),
@@ -43,39 +36,86 @@ export const UserLogin = () => {
             console.error("Error submitUserDetails:", error);
         }
     }
+    const submitUserDetailsGoogleSignIn = async (userEmail, firstName, lastName) => {
+        console.log("firstName", firstName)
+        try {
+            await setDoc(doc(database, "persons", userEmail), {
+                createdAt: serverTimestamp(),
+                email: userEmail,
+                isActive: true,
+                signInAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                uid: userEmail,
+                uPassword: '',
+                firstName: firstName,
+                lastName: lastName
+            });
+        } catch (error) {
+            console.error("Error submitUserDetails:", error);
+        }
+    }
+    async function updatePassword(userId, pass) {
+        const persons = collection(database, "persons");
+        const userRef = doc(persons, userId);
+
+        try {
+            await updateDoc(userRef, {
+                uPassword: pass
+            });
+            console.log("update successful")
+
+        } catch (error) {
+            console.error("Error updating field:", error);
+        }
+    }
+
+
     // holds email + pass
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
 
     // sign up
     const signUp = async () => {
-        await createUserWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
-            const userCred = userCredential.userCredential;
-            submitUserDetails(userEmail, userPassword)
-            alert(userCred);
-        });
-    };
+        try {
+            await createUserWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
+                submitUserDetails(userEmail, userPassword)
+                sessionStorage.setItem("userId", userEmail);
+                navigate(-1)
+            });
+        }
+        catch (err) {
+            alert(err)
 
+        }
+
+    };
     const signIn = async () => {
         try {
             // Retrieve the user document from the database
             const userDoc = doc(database, "persons", userEmail);
             const userSnap = await getDoc(userDoc);
             const userData = userSnap.data();
-            console.log(userData);
 
             if (userData) {
                 const decryptedPassword = decrypt(userData.uPassword);
-                if (userPassword === decryptedPassword) {
+                if (userData.uPassword === '') {
+                    if (userPassword.length<6)
+                    
+                    alert("Password needs to be al least 6 charachters long")
+                else
+                {
+                    updatePassword(userEmail, userPassword)
+                    sessionStorage.setItem("userId", userEmail);
+                    navigate(-1)
+                }
+                }
+                else if (userPassword === decryptedPassword) {
                     const userCredential = await signInWithEmailAndPassword(userAuth, userEmail, userPassword);
-                    const userCred = userCredential.user;
-                    localStorage.setItem("userId", userEmail);
+                    sessionStorage.setItem("userId", userEmail);
                     navigate(-1)
                 } else {
                     alert("Invalid password");
                 }
-            } else {
-                alert("User does not exist");
             }
         } catch (error) {
             console.error("Error signing in:", error.code, error.message);
@@ -86,8 +126,12 @@ export const UserLogin = () => {
     const signInGoogle = async () => {
 
         await signInWithPopup(userAuth, userAuthWithGoogle).then((userCredential) => {
-            const userCred = userCredential.providerId;
-            alert(userCred.user);
+
+            sessionStorage.setItem("userId", userCredential.user.email);
+            const firstName = userCredential.user.displayName.split(" ")[0];
+            const lastName = userCredential.user.displayName.split(" ")[1];
+            submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
+            navigate(-1)
 
         }).catch((err) => {
 

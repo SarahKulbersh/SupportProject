@@ -3,6 +3,7 @@ import { database } from "./firebaseConfig";
 import { useState, useEffect } from 'react';
 import { collectionGroup, getDocs } from 'firebase/firestore';
 import JobCard from './jobCard';
+import "./styles/recent_jobs.css"
 
 export function RecentlyPostedJobs() {
 
@@ -25,11 +26,10 @@ export function RecentlyPostedJobs() {
   }, []);
 
   return (
-    <div className='container'>
-      <div className='justify-content-center '>
-        <div className="row row-cols-2">
-          <JobCard postingJobsData={postingJobsData} />
-        </div>
+    <div className='recent_jobs'>
+      <h2 className='recent_jobs_heading'>Recently Posted Jobs</h2>
+      <div className='recent_job_list'>
+        <JobCard postingJobsData={postingJobsData} />
       </div>
     </div>
   );

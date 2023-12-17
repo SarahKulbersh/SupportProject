@@ -1,11 +1,17 @@
 import React from 'react'
 import { useContext, useEffect } from 'react'
-import { JobContext } from './Context'
+import { JobContext, userIdContext, idJobToApplyContext } from './Context'
 import { Card } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import "./styles/jobResults.css"
+import { applyIcon } from './assets'
 
 export default function JobDetails() {
 
   const { job, setJob } = useContext(JobContext);
+  const navigate = useNavigate();
+  const userId = sessionStorage.getItem("userId") ?? null;
+  const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
 
   function convertTime(timeStr) {
     const [hours, minutes] = timeStr.split(":");
@@ -19,25 +25,43 @@ export default function JobDetails() {
   if (!job) {
     return null;
   }
+  function handleApply(jobId) {
+    setJobToApplyId(jobToApplyId);
+    console.log(jobId)
+    console.log("userId", userId)
+    if (sessionStorage.getItem("userId") === null) {
+      navigate('/login')
+
+    }
+    else {
+      navigate('/apply')
+    }
+
+  }
+
 
   return (
-    <Card>
-      <h2>{job.jobTitle}</h2>
-
-      <p>{job.startedTimeFrom && job.endedTimeIn ? (
+    <div className='job_result_cnt'>
+    <h4>{job.jobTitle}</h4>
+    <button className='job_result_btn'>Apply <img src={applyIcon} alt="" onClick={() => handleApply(job.postingJobId)}/></button>
+    {/* <h5>Job type</h5> */}
+    <div className='job_result_tags'>
+      <div>Full Time</div>
+      <div>{job.startedTimeFrom && job.endedTimeIn ? (
         <>
           {convertTime(job.startedTimeFrom).replace(" ", "")}{" - "}
           {convertTime(job.endedTimeIn).replace(" ", "")}
-          {job.isEST ? " EST" : ""}
+          {job.isEST ? " EST" : "Israel time"}
         </>
-      ) : null}</p>
-      <p>Job Description: {job.jobDescription}</p>
-      <p>Pay: {job.jobPayment}{job.jobPaymentKind} per {job.jobPaymentPer}</p>
-      {/* location causing error */}
-      {/* <p>Job Location: {job.jobLocation}</p> */}
-      <p>Experience Required: {job.JobExperienceRequiredDesc}</p>
-      <p>{job.isRemoteAvailable ? "Working Remotely available" : "Remote work not available"}</p>
+      ) : null}</div>
+    </div>
+    <h5>      <React.Fragment>
+        {job.jobDescription.split("<br/>").map((line, index) => (
+          <p key={index}>{line}</p>
+        ))}
+      </React.Fragment>
+</h5>
 
-    </Card>
+  </div>
   );
 }

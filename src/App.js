@@ -7,11 +7,10 @@ import { JobContext, EstPreviewContext, idJobToApplyContext, userIdContext } fro
 import { PostJobForm } from './postJobForm'
 import { JobApplyForm } from './jobApplyForm';
 import { UserLogin } from './userLogin';
-
+import "./styles/index.css"
 function App() {
   const [job, setJob] = useState('');
   const [estPreview, setEstPreview] = useState('all');
-  const [employerForm, setEmplyerForm] = useState({})
   const [jobToApplyId, setJobToApplyId] = useState('')
   const [userId, setUserId] = useState('')
 
