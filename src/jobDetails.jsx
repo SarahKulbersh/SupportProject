@@ -5,6 +5,7 @@ import { Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import "./styles/jobResults.css"
 import { applyIcon } from './assets'
+import parse from 'html-react-parser';
 
 export default function JobDetails() {
 
@@ -26,7 +27,8 @@ export default function JobDetails() {
     return null;
   }
   function handleApply(jobId) {
-    setJobToApplyId(jobToApplyId);
+    alert("apply")
+    setJobToApplyId(jobId);
     console.log(jobId)
     console.log("userId", userId)
     if (sessionStorage.getItem("userId") === null) {
@@ -43,7 +45,7 @@ export default function JobDetails() {
   return (
     <div className='job_result_cnt'>
     <h4>{job.jobTitle}</h4>
-    <button className='job_result_btn'>Apply <img src={applyIcon} alt="" onClick={() => handleApply(job.postingJobId)}/></button>
+    <button className='job_result_btn' onClick={() => handleApply(job.postingJobId)}>Apply <img src={applyIcon} alt=""/></button>
     {/* <h5>Job type</h5> */}
     <div className='job_result_tags'>
       <div>Full Time</div>
@@ -55,13 +57,7 @@ export default function JobDetails() {
         </>
       ) : null}</div>
     </div>
-    <h5>      <React.Fragment>
-        {job.jobDescription.split("<br/>").map((line, index) => (
-          <p key={index}>{line}</p>
-        ))}
-      </React.Fragment>
-</h5>
-
+    <text>{parse(job.jobDescription)}</text>
   </div>
   );
 }

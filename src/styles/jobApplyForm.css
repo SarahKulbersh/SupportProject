@@ -361,3 +361,7 @@
     border-radius: 8px;
     border: 1px solid var(--primary-color-45, #9DB3D7);
 }
+
+textarea{
+    width: 100%;
+}

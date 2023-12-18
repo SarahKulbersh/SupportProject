@@ -5,11 +5,9 @@ import { collectionGroup, getDocs } from 'firebase/firestore';
 import JobCard from "./jobCard";
 import { useState, useEffect } from 'react';
 import JobDetails from './jobDetails';
-import { Container } from 'react-bootstrap';
 import { SearchBox } from './searchBox';
 import { EstPreviewContext } from './Context';
 import "./styles/jobResults.css"
-import { applyIcon, searchIcon } from './assets'
 import NavBar from "./components/NavBar";
 
 export default function JobsList() {
@@ -17,16 +15,27 @@ export default function JobsList() {
   const searchTerm = useParams().searchTerm;
   const [jobs, setJobs] = useState([]);
   const { estPreview, setEstPreview } = useContext(EstPreviewContext)
+  const [showNoJobs, setShowNoJobs] = useState(false);
+  useEffect(() => {
+    const delay = 4000; // Adjust the delay time in milliseconds to your preference
+
+    const timer = setTimeout(() => {
+      setShowNoJobs(true);
+    }, delay);
+
+    return () => clearTimeout(timer); // Clear the timer if component is unmounted
+  }, []);
 
   function handleTimePreview() {
-    if (estPreview === "true")
-      setEstPreview("false");
+    if (estPreview === true)
+      setEstPreview(false);
     else
-      setEstPreview("true");
+      setEstPreview(true);
 
   }
   useEffect(() => {
     setEstPreview(false)
+    console.log(estPreview)
   }, [])
 
   useEffect(() => {
@@ -34,6 +43,9 @@ export default function JobsList() {
       const fetchedJobs = await searchJobs(searchTerm);
       console.log("fetchedJobs", fetchedJobs)
       setJobs(fetchedJobs)
+      setEstPreview(false)
+      console.log(estPreview)
+
     }
     fetchJobs();
   }, [searchTerm]);
@@ -82,22 +94,29 @@ export default function JobsList() {
         <div className='job_results'>
 
           <SearchBox />
-          <div>
-            <div className='letssupport'>Show me job times in</div>
-            <div className='job_result_zone'>
-              <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === "false" ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
-              <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === "true" ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
-            </div>
-          </div>
-          <div className='job_result_box'>
-            <div className='recent_job_list'>
-              <JobCard postingJobsData={jobs} />
-            </div>
-            <JobDetails />
+          {jobs.length > 0 && (
+            <>
+                      <div>
+                      <div className='letssupport'>Show me job times in</div>
+                      <div className='job_result_zone'>
+                        <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === false ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
+                        <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === true ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
+                      </div>
+                    </div>
+          
+            <div className='job_result_box'>
 
-          </div>
+              <div className='recent_job_list'>
+                <JobCard postingJobsData={jobs} />
+              </div>
+              <JobDetails />
+            </div >
+            </>
+          )}
+          {showNoJobs && jobs.length === 0 && <p className="no-jobs-message">No jobs found!</p>}
 
-        </div >
+        </div>
+
       </div>
     </>
   )

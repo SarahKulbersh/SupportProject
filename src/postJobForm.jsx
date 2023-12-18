@@ -1,46 +1,49 @@
 import React from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { collection, setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
-import { userIdContext } from './Context';
-import { addMore, leftArrow, rightArrow } from './assets';
+import { leftArrow, rightArrow } from './assets';
 import "./styles/jobPost.css";
 import AddIcon from './assets/AddIcon';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { getStorage } from 'firebase/storage';
+import parse from 'html-react-parser';
 
 export function PostJobForm() {
 
-    const userId = sessionStorage.getItem("userId") ?? null;
-
+    const hoursList = [
+        "00:00 AM", "01:00 AM", "02:00 AM", "03:00 AM", "04:00 AM", "05:00 AM",
+        "06:00 AM", "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM",
+        "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM",
+        "06:00 PM", "07:00 PM", "08:00 PM", "09:00 PM", "10:00 PM", "11:00 PM"
+    ];
 
     const [location, setLocation] = useState('');
     const [jobTitle, setJobTitle] = useState('');
     const [selectedFullPart, setSelectedFullPart] = useState('full-time');
-    const [selectedTime, setSelectedTime] = useState();
+    const [selectedTime, setSelectedTime] = useState("Eastern Time (EST)");
     const [startTime, setStartTime] = useState("08:00 AM");
     const [endTime, setEndTime] = useState("04:00 PM");
     const [description, setDescription] = useState('');
-    
+
     const handleSetDescription = (description) => {
-        const newDescription = description.split('\n').join('<br/>');
+        const newDescription = description.split('\n').join('<r/>');
         setDescription(newDescription);
     }
     const [selectedShowPay, setSelectedShowPay] = useState('Range');
     const [minPay, setMinPay] = useState('');
     const [maxPay, setMaxPay] = useState('');
-    const [selectedRatePer, setSelectedRatePer] = useState('');
+    const [selectedRatePer, setSelectedRatePer] = useState('per year');
 
     const [cardNumber, setCardNumber] = useState(1);
     const navigate = useNavigate();
 
-    const [startHour, setStartHour] = useState('');
-    const [finishHour, setFinishHour] = useState('');
-    const [startMinutes, setStartMinutes] = useState('');
-    const [finishMinutes, setFinishMinutes] = useState('');
+    // const [startHour, setStartHour] = useState('');
+    // const [finishHour, setFinishHour] = useState('');
+    // const [startMinutes, setStartMinutes] = useState('');
+    // const [finishMinutes, setFinishMinutes] = useState('');
     // const [startTimePeriod, setStartTimePeriod] = useState('');
     // const [finishTimePeriod, setFinishTimePeriod] = useState('');
 
@@ -65,20 +68,22 @@ export function PostJobForm() {
 
         return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
     }
+    const isEst = () => {
+        console.log(selectedTime)
+        // const selectedTime = "Eastern Time (EST)";
+        return selectedTime === "Eastern Time (EST)";
+    };
 
     const addJobPost = async (e) => {
 
         const userId = sessionStorage.getItem("userId");
         console.log("userId", userId)
-        const isEst = () => {
-            const selectedTime = "Eastern Time (EST)";
-            return selectedTime === "Eastern Time (EST)";
-        };
+
 
         const postingJobIdString = getCurrentDateTimeString() + '_' + userId;
 
-        const persons = collection(database, "persons");
-        const userRef = doc(persons, userId);
+        const person = collection(database, "persons");
+        const userRef = doc(person, userId);
         const subcollectionRef = collection(userRef, "postingJobs");
         try {
             await setDoc(doc(subcollectionRef, getCurrentDateTimeString()), {
@@ -88,8 +93,8 @@ export function PostJobForm() {
                 isFullTimeJob: selectedFullPart,
                 jobDescription: description,
                 jobLocation: location,
-                startedTimeFrom: `${startHour} : ${startMinutes}`,
-                endedTimeIn: `${finishHour} : ${finishMinutes}`,
+                startedTimeFrom: startTime,
+                endedTimeIn: endTime,
                 minPay: minPay,
                 maxPay: maxPay,
                 jobPaymentPer: selectedRatePer,
@@ -137,7 +142,7 @@ export function PostJobForm() {
             {cardNumber === 2 &&
                 <Card>
                     <Card.Body className='job_apply_form_body'>
-                        <Form >
+                        <Form className='job_form_apply_fields' >
                             <Form.Group className='job_apply_field'>
                                 <Form.Label className='job_form_field'>Job type *</Form.Label>
                                 <div className='job_apply_type_btns'>
@@ -170,13 +175,28 @@ export function PostJobForm() {
                                 <option value={"Eastern Time (EST)"}>Eastern Time (EST)</option>
                                 <option value={"Israel Time (IST)"}>Israel Time (IST)</option>
                             </Form.Select>
-
-                            <input type="number" class="form-control" name="numberInput" min="1" max="23" onChange={(e) => setStartHour(e.target.value)} value={startHour} />
-                            <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" onChange={(e) => setStartMinutes(e.target.value)} value={startMinutes} />
-
-
-                            <input type="number" class="form-control" name="numberInput" min="1" max="12"  onChange={(e) => setFinishHour(e.target.value)} value={finishHour} />
-                            <input type="number" class="form-control" name="numberInput" min="00" max="60" step="1" onChange={(e) => setFinishMinutes(e.target.value)} value={finishMinutes} />
+                            <Form.Group>
+                                <p className='job_form_field'>Work hours</p>
+                                <Form.Group className='job_edu_form_date'>
+                                    <div className='job_date_from_to'>
+                                        <Form.Label>From</Form.Label>
+                                        <Form.Select value={startTime} onChange={(e) => setStartTime(e.target.value)}>
+                                        {hoursList.map((hour, index) => (
+                                                <option key={index} value={hour}>
+                                                    {hour}
+                                                </option>
+                                            ))}                                        </Form.Select>
+                                        <Form.Label>Until</Form.Label>
+                                        <Form.Select value={endTime} onChange={(e) => setEndTime(e.target.value)}>
+                                             {hoursList.map((hour, index) => (
+                                                <option key={index} value={hour}>
+                                                    {hour}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </div>
+                                </Form.Group>
+                            </Form.Group>
 
                             <div className='job_apply_end_btns'>
                                 <button className='job_form_back_btn' onClick={() => handleBackBtn(2)}>
@@ -195,7 +215,7 @@ export function PostJobForm() {
             {cardNumber === 3 &&
                 <Card>
                     <Card.Body className='job_apply_form_body'>
-                        <Form>
+                        <Form className='job_form_apply_fields'>
                             <Form.Group>
                                 <Form.Label className='job_form_field'>Job description *</Form.Label>
                                 <ReactQuill theme="snow"
@@ -204,14 +224,6 @@ export function PostJobForm() {
                                     onChange={(value) => handleSetDescription(value)}
                                     className="form-control" />
                             </Form.Group>
-
-                            {/* <textarea
-                                    value={description}
-                                    className="form-control"
-                                    id="exampleFormControlTextarea1"
-                                    rows="5"
-                                    onChange={(e) => handleSetDescription(e.target.value)}
-                                /> */}
                             <div className='job_apply_end_btns'>
                                 <button className='job_form_back_btn' onClick={() => handleBackBtn(3)}>
                                     <img src={leftArrow} alt="" />
@@ -231,7 +243,7 @@ export function PostJobForm() {
 
                 <Card>
                     <Card.Body className='job_apply_form_body job_filter_body'>
-                        <Form>
+                        <Form className='job_form_apply_fields'>
                             <div className='job_form_filter'>
 
                                 <Form.Group>
@@ -253,11 +265,11 @@ export function PostJobForm() {
                                 <Form.Group className='job_form_filter'>
                                     <div>
                                         <Form.Label className='job_form_field'>Minimum</Form.Label>
-                                        <Form.Control value={"$67,1511.11"} className='job_form_input' type='text' required onChange={(e) => setMinPay(e.target.value)} />
+                                        <Form.Control value={minPay} className='job_form_input' type='text' required onChange={(e) => setMinPay(e.target.value)} />
                                     </div>
                                     <div>
                                         <Form.Label className='job_form_field'>Maximum</Form.Label>
-                                        <Form.Control value={"$80,870.15"} className='job_form_input' type='text' required onChange={(e) => setMaxPay(e.target.value)} />
+                                        <Form.Control value={maxPay} className='job_form_input' type='text' required onChange={(e) => setMaxPay(e.target.value)} />
                                     </div>
 
                                 </Form.Group>
@@ -280,14 +292,15 @@ export function PostJobForm() {
                                 </Form.Group>
 
                             </div>
-                            <div className='job_apply_end_btns'>
-                                <button className='job_form_back_btn' onClick={() => handleBackBtn(4)}>
-                                    <img src={leftArrow} alt="" />
-                                    Back</button>
-                                <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(4)}>
-                                    continue  <img src={rightArrow} alt="" />
-                                </button>
-                            </div>
+
+                                <div className='job_apply_end_btns'>
+                                    <button className='job_form_back_btn' onClick={() => handleBackBtn(4)}>
+                                        <img src={leftArrow} alt="" />
+                                        Back</button>
+                                    <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(4)}>
+                                        continue  <img src={rightArrow} alt="" />
+                                    </button>
+                                </div>
 
                         </Form>
 
@@ -300,18 +313,14 @@ export function PostJobForm() {
                 <Card>
                     <Card.Body className='job_apply_form_body'>
                         <Form>
-                        <h1>{jobTitle}</h1>
+                            <h4>{jobTitle}</h4>
                             <h5>{selectedShowPay}</h5>
-                            <h1>{selectedFullPart}</h1>
-                            <h1>{description}</h1>
-                            <h5>{startTime}-{endTime}</h5>
+                            <h5>{selectedFullPart}</h5>
+                            <h5>{startTime}-{endTime}{() => { isEst() }}</h5>
                             <h5>{minPay}-{maxPay}</h5>
-                            <h3>{selectedTime}</h3>
-                            <h3>{selectedRatePer}</h3>
-                            <p>Description:  {description.split("<br/>").map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))}
-                            </p>
+                            <h5>{selectedTime}</h5>
+                            <h5>{selectedRatePer}</h5>
+                            <p>{parse(description)}</p>
                             <div className='job_apply_end_btns'>
                                 <button className='job_form_back_btn' onClick={() => handleBackBtn(5)}>
                                     <img src={leftArrow} alt="" />

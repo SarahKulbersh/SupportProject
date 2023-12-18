@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Card, Button } from 'react-bootstrap';
-import { JobContext, EstPreviewContext, idJobToApplyContext, userIdContext } from './Context';
+import { JobContext, EstPreviewContext, idJobToApplyContext } from './Context';
 import { useNavigate } from 'react-router-dom';
 import "./styles/recent_jobs.css";
 
@@ -64,19 +63,6 @@ export default function JobCard({ postingJobsData }) {
     }
   }
 
-  function handleApply(jobId) {
-    setJobToApplyId(jobId);
-    console.log(jobId)
-    console.log("userId", userId)
-    if (userId === null) {
-      navigate('/login')
-
-    }
-    else {
-      navigate('/apply')
-    }
-
-  }
 
   return (
     <>
@@ -102,21 +88,20 @@ export default function JobCard({ postingJobsData }) {
                 <>
                   {convertTime(job.startedTimeFrom, job.isEST).replace(" ", "")}{" - "}
                   {convertTime(job.endedTimeIn, job.isEST).replace(" ", "")}
-                  {(job.isEST && estPreview === null) || estPreview === true ? " EST" : ""}
+                  {(job.isEST && estPreview === null) || estPreview === true ? " EST" : " IST"}
                 </>
               ) : null}
             </div>
-            </div>
+          </div>
 
-            <div className='recent_job_desc'>  {job.jobDescription
-              .replace(/<br\s*\/?>/gm, " ")
-              .split("\n")
-              .join(" ")
-              .substring(0, 150) + "..."}
-              
-            </div>
-
-            <button className='recent_job_apply' onClick={() => handleApply(job.postingJobId)}>Apply</button>
+          <div className='recent_job_desc'>
+            {job?.jobDescription
+              ?.replace(/<[^>]+>/gm, ' ') // Replace any HTML tag with ''
+              ?.split("\n")
+              ?.join(" ")
+              ?.substring(0, 200) + "..."}
+          </div>
+          {/* <button className='recent_job_apply' onClick={() => handleApply(job.postingJobId)}>Apply</button> */}
         </div >
       ))
       }

@@ -1,7 +1,5 @@
 import React from 'react'
-import { Container } from 'react-bootstrap';
 import { SearchBox } from './searchBox'
-import { Navbar } from './navbar'
 import { RecentlyPostedJobs } from './recentlyPostedJobs';
 import { useNavigate } from 'react-router-dom';
 import NavBar from './components/NavBar';

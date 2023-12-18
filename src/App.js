@@ -10,7 +10,7 @@ import { UserLogin } from './userLogin';
 import "./styles/index.css"
 function App() {
   const [job, setJob] = useState('');
-  const [estPreview, setEstPreview] = useState('all');
+  const [estPreview, setEstPreview] = useState(false);
   const [jobToApplyId, setJobToApplyId] = useState('')
   const [userId, setUserId] = useState('')
 

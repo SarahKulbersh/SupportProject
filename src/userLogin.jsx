@@ -4,6 +4,7 @@ import { userAuth, userAuthWithGoogle, database } from "./firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import * as CryptoJS from 'crypto-js'
+import './styles/jobApplyForm.css'
 
 export const UserLogin = () => {
 
@@ -99,15 +100,14 @@ export const UserLogin = () => {
             if (userData) {
                 const decryptedPassword = decrypt(userData.uPassword);
                 if (userData.uPassword === '') {
-                    if (userPassword.length<6)
-                    
-                    alert("Password needs to be al least 6 charachters long")
-                else
-                {
-                    updatePassword(userEmail, userPassword)
-                    sessionStorage.setItem("userId", userEmail);
-                    navigate(-1)
-                }
+                    if (userPassword.length < 6)
+
+                        alert("Password needs to be al least 6 charachters long")
+                    else {
+                        updatePassword(userEmail, userPassword)
+                        sessionStorage.setItem("userId", userEmail);
+                        navigate(-1)
+                    }
                 }
                 else if (userPassword === decryptedPassword) {
                     const userCredential = await signInWithEmailAndPassword(userAuth, userEmail, userPassword);
@@ -141,20 +141,26 @@ export const UserLogin = () => {
     };
 
     return (
-        <div>
-            <input placeholder="Email" required value={userEmail} onChange={(e) => setEmail(e.target.value)} />
-            <input type="password" required value={userPassword} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-            <button onClick={signUp}>Sign up</button>
+        <div className='job_apply_form'>
+            <div className='job_apply_form_body'>
+                <div className='job_form_apply_fields'>
+
+                    <input className='job_form_input' placeholder="Email" required value={userEmail} onChange={(e) => setEmail(e.target.value)} />
+                    <input className='job_form_input' type="password" required value={userPassword} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+                    <button className='job_form_submit' onClick={signUp}>Sign up</button>
+                </div></div>
 
             <hr />
+            <div className='job_apply_form_body'>
+                <div className='job_form_apply_fields'>
 
-            <input placeholder="Email" required value={userEmail} onChange={(e) => setEmail(e.target.value)} />
-            <input type="password" required value={userPassword} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-            <button onClick={signIn}>Sign In</button>
-
+                    <input className='job_form_input' placeholder="Email" required value={userEmail} onChange={(e) => setEmail(e.target.value)} />
+                    <input className='job_form_input' type="password" required value={userPassword} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+                    <button className='job_form_submit' onClick={signIn}>Sign In</button>
+                </div></div>
             <hr />
 
-            <button onClick={signInGoogle}>Sign In With google</button>
+            <button className='job_form_submit' onClick={signInGoogle}>Sign In With google</button>
         </div>
     );
 };

@@ -1,9 +1,9 @@
-import React, { useState, useContext, useEffect, useId } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
 import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
-import { idJobToApplyContext, userIdContext } from './Context';
+import { idJobToApplyContext } from './Context';
 import { storage } from "./firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
@@ -17,10 +17,10 @@ export function JobApplyForm() {
     const userId = sessionStorage.getItem("userId") ?? null;
     const [cardNumber, setCardNumber] = useState(1);
 
-    const SaveAndExit = () => {
+    const SaveAndExit = ({ changeTo }) => {
         return (<div className='job_save_exit'>
             <div className='job_save_exit_head'>
-                {cardNumber !== 1 && <img onClick={() => { setCardNumber(cardNumber - 1) }} className='' src={backArrowIcon} alt="" />}
+                {cardNumber !== 1 && <img onClick={() => { setCardNumber(changeTo) }} className='' src={backArrowIcon} alt="" />}
                 <div className='job_save_exit_text' onClick={(e) => navigate(-1)}>Save and exit</div>
             </div>
             <div className='job_save_exit_progress'>
@@ -36,6 +36,7 @@ export function JobApplyForm() {
     const [email, setEmail] = useState('')
     const [city, setCity] = useState('')
     const [phone, setPhone] = useState('')
+    const [phoneAreaCode, setPhoneAreaCode] = useState('')
     const [resumeOption, setResumeOption] = useState('')
     //card 2
     async function submitUserDetailsNoResume() {
@@ -146,6 +147,10 @@ export function JobApplyForm() {
     }, []);
 
     // card 4
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const years = [...Array(31).keys()].map((year) => currentYear - year);
+
     const [education, setEducation] = useState([
         {
             educationLevel: "",
@@ -354,8 +359,10 @@ export function JobApplyForm() {
     }
     async function updateIdentitiesUserApplies() {
         const persons = collection(database, "persons");
+        console.log("jobID", jobToApplyId)
         const userRef = doc(persons, extractEmailFromDateString(jobToApplyId));
         const docId = extractDateTime(jobToApplyId)
+        console.log("jobDocId", docId)
         const subcollectionRef = collection(userRef, "postingJobs");
 
         try {
@@ -386,11 +393,14 @@ export function JobApplyForm() {
     }
 
     return (
+
         <Container className='job_apply_form'>
+
             {cardNumber === 1 &&
                 <Card>
                     <Card.Body className='job_apply_form_body'>
                         <SaveAndExit />
+
                         <Form className='job_form_apply_fields'>
                             <h4>Add your contact information</h4>
                             <div className='job_apply_field'>
@@ -410,8 +420,13 @@ export function JobApplyForm() {
                                 <Form.Control type='text' onChange={(e) => setCity(e.target.value)} />
                             </div>
                             <div className='job_apply_field'>
-                                <Form.Label htmlFor="phone" className='job_form_field'>Phone number</Form.Label>
-                                <Form.Control className='job_form_input' type='text' id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} />
+                                <Form.Label htmlFor="phone" className='job_form_field' onChange={(e) => setPhone(e.target.value)} required value={phone}>Phone number</Form.Label>
+                                <div className='job_form_phone_input'>
+                                    <Form.Select size="lg" className='job_form_phone_code' onChange={(e) => setPhoneAreaCode(e.target.value)} required value={phoneAreaCode}>
+                                        <option>+1</option>
+                                    </Form.Select>
+                                    <Form.Control className='job_form_input' type='text' id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} />
+                                </div>
                             </div>
                             <button className='job_form_submit' type='submit' onClick={(e) => setCardNumber(2)}>Continue</button>
                         </Form>
@@ -421,13 +436,13 @@ export function JobApplyForm() {
             {cardNumber === 2 &&
                 <Card>
                     <Card.Body className='job_apply_form_body'>
-                        <SaveAndExit />
-                        <Form className='job_form_apply_fields'>
+                        <SaveAndExit changeTo={1} />
 
-                            {/* <Button onClick={(e) => setCardNumber(1)}>Back</Button> */}
+
+                        <Form className='job_form_apply_fields'>
                             <h4>Add a resume for the employer</h4>
 
-                            <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(1)}>
+                            <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(1)} style={resumeOption === 1 ? { border: "navy 1px solid" } : null}>
                                 <img src={uploadIcon} className='uplaod_icon' alt="" />
                                 <div>
                                     <h4 className='job_form_head_field'>Upload a resume</h4>
@@ -435,7 +450,7 @@ export function JobApplyForm() {
                                 </div>
                             </Container>
                             <img src={orLineIcon} alt="" />
-                            <Container className='job_apply_upload_box' type='button' onClick={(e) => setResumeOption(2)}>
+                            <Container className='job_apply_upload_box' type='button' onClick={(e) => setResumeOption(2)} style={resumeOption === 2 ? { border: "navy 1px solid" } : null}>
                                 <img src={uploadIcon} className='uplaod_icon' alt="" />
                                 <div>
                                     <p className='job_form_upload_desc_rec'>Recommended</p>
@@ -444,7 +459,7 @@ export function JobApplyForm() {
                                 </div>
                             </Container>
                             <img src={orLineIcon} alt="" />
-                            <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(3)}>
+                            <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(3)} style={resumeOption === 3 ? { border: "navy 1px solid" } : null}>
                                 <img src={uploadIcon} className='uplaod_icon' alt="" />
                                 <div>
                                     <h4 className='job_form_head_field'>Continue without a resume</h4>
@@ -462,7 +477,8 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body className='job_apply_form_body'>
                         <Form className='job_form_apply_fields'>
-                            <SaveAndExit />
+                            <SaveAndExit changeTo={2} />
+
                             <div className='job_form_resume_head'>
                                 <h5>Upload a resume</h5>
                                 <img src={crossIcon} alt="" />
@@ -489,10 +505,7 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body className='job_apply_form_body'>
                         <Form className='job_form_apply_fields'>
-                            <SaveAndExit />
-
-                            {/* <Button onClick={(e) => setCardNumber(2)}>Back</Button> */}
-
+                            <SaveAndExit changeTo={2} />
                             <div>
                                 <p className='job_form_upload_desc'>Build your resume (1 of 4)</p>
                                 <p className='job_form_field'>Do you want to add any education details?</p>
@@ -506,22 +519,49 @@ export function JobApplyForm() {
                                     <Form.Label className='job_form_field'>Name of school</Form.Label>
                                     <Form.Control className='job_form_input' type='text' name='schoolName' required value={e.schoolName} onChange={(e) => handleChange(e, index)} />
 
-                                    <Form.Text>Time period</Form.Text>
+                                    <Form.Text className='job_form_field'>Time period</Form.Text>
                                     <Form.Group className='job_edu_form_date'>
                                         <Form.Label>From</Form.Label>
-
-                                        <input type="number" name='timeOfStudyFromMonth' value={e.educationFromMonth} class="form-control" min="1" max="12" placeholder='Month' onChange={(e) => handleChange(e, index)} />
-                                        <input type="number" name='timeOfStudyFromYear' value={e.educationFromYear} class="form-control" min="1960" max="2024" placeholder='Year' onChange={(e) => handleChange(e, index)} />
-
+                                        <div>
+                                            <Form.Select name='timeOfStudyFromMonth' value={e.timeOfStudyFromMonth} onChange={(e) => handleChange(e, index)}>
+                                                <option>Month</option>
+                                                {[...new Array(12).keys()].map((i) => (
+                                                    <option key={i + 1} value={i + 1}>
+                                                        {i + 1}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                            <Form.Select name='timeOfStudyFromYear' value={e.timeOfStudyFromYear} onChange={(e) => handleChange(e, index)}>
+                                                <option>Year</option>
+                                                {years.map((year) => (
+                                                    <option key={year} value={year}>
+                                                        {year}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </div>
                                     </Form.Group>
                                     <Form.Group className='job_edu_form_date'>
                                         <Form.Label>To</Form.Label>
-                                        <input type="number" name='timeOfStudyToMonth' value={e.educationToMonth} class="form-control" min="1" max="12" placeholder='Month' onChange={(e) => handleChange(e, index)} />
-                                        <input type="number" name='timeOfStudyToYear' value={e.educationToYear} class="form-control" min="1960" max="2024" placeholder='Year' onChange={(e) => handleChange(e, index)} />
+                                        <div>
+                                            <Form.Select name='timeOfStudyToMonth' value={e.timeOfStudyToMonth} onChange={(e) => handleChange(e, index)}>
+                                                <option>Month</option>
+                                                {[...new Array(12).keys()].map((i) => (
+                                                    <option key={i + 1} value={i + 1}>
+                                                        {i + 1}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                            <Form.Select name='timeOfStudyToYear' value={e.timeOfStudyToYear} onChange={(e) => handleChange(e, index)}>
+                                                <option>Year</option>
+                                                {years.map((year) => (
+                                                    <option key={year} value={year}>
+                                                        {year}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </div>
                                     </Form.Group>
-                                    {/* {education.length > 1 && (
-                                        <Button onClick={() => handleDeleteInput(index)}>Delete</Button>
-                                    )} */}
                                     {index === education.length - 1 && (
                                         <div className='job_form_add' onClick={() => handleAddInput()}>
                                             <img src={addMore} alt="" />
@@ -542,10 +582,7 @@ export function JobApplyForm() {
                 <Card>
                     <Card.Body className='job_apply_form_body'>
                         <Form className='job_form_apply_fields'>
-                            <SaveAndExit />
-
-                            {/* <Button onClick={(e) => setCardNumber(4)}>Back</Button> */}
-
+                            <SaveAndExit changeTo={4} />
                             <Form.Text>Do you want to add work history?</Form.Text>
                             {jobs?.map((job, index) => (
                                 <div key={index}>
@@ -557,32 +594,60 @@ export function JobApplyForm() {
                                         <Form.Label className='job_form_field'>Company</Form.Label>
                                         <Form.Control className='job_form_input' type='text' name='company' value={job.company} required onChange={(e) => handleWorkHistoryChange(e, index)} />
                                     </Form.Group>
-                                    <Form.Text>Time period</Form.Text>
-                                    <Form.Group className='job_edu_form_date'>
-                                        <Form.Label className='job_form_field'>From</Form.Label>
-                                        <input type="number" class="form-control" name='timeOfWorkFromMonth' value={job.timeOfWorkFromMonth} min="1" max="12" placeholder='Month' onChange={(e) => handleWorkHistoryChange(e, index)} />
-                                        <input type="number" class="form-control" name='timeOfWorkFromYear' value={job.timeOfWorkFromYear} min="1960" max="2024" placeholder='Year' onChange={(e) => handleWorkHistoryChange(e, index)} />
 
+                                    <Form.Text className='job_form_field'>Time period</Form.Text>
+                                    <Form.Group className='job_edu_form_date'>
+                                        <Form.Label>From</Form.Label>
+                                        <div>
+                                            <Form.Select name='timeOfWorkFromMonth' value={job.timeOfWorkFromMonth} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                <option>Month</option>
+                                                {[...new Array(12).keys()].map((i) => (
+                                                    <option key={i + 1} value={i + 1}>
+                                                        {i + 1}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                            <Form.Select name='timeOfWorkFromYear' value={job.timeOfWorkFromYear} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                <option>Year</option>
+                                                {years.map((year) => (
+                                                    <option key={year} value={year}>
+                                                        {year}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </div>
                                     </Form.Group>
                                     <Form.Group className='job_edu_form_date'>
                                         <Form.Label>To</Form.Label>
-                                        <input type="number" class="form-control" name='timeOfWorkToMonth' value={job.timeOfWorkToMonth} min="1" max="12" placeholder='Month' onChange={(e) => handleWorkHistoryChange(e, index)} />
-                                        <input type="number" class="form-control" name='timeOfWorkToYear' value={job.timeOfWorkToYear} min="1960" max="2024" placeholder='Year' onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                        <div>
+                                            <Form.Select name='timeOfWorkToMonth' value={job.timeOfWorkToMonth} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                <option>Month</option>
+                                                {[...new Array(12).keys()].map((i) => (
+                                                    <option key={i + 1} value={i + 1}>
+                                                        {i + 1}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                            <Form.Select name='timeOfWorkToYear' value={job.timeOfWorkToYear} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                <option>Year</option>
+                                                {years.map((year) => (
+                                                    <option key={year} value={year}>
+                                                        {year}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </div>
                                     </Form.Group>
                                     <div className='job_form_desc_box'>
                                         <Form.Label>Description</Form.Label>
                                         <Form.Text>Describe your position and any significant accomplishments</Form.Text>
                                     </div>
-
                                     <textarea
                                         rows="5"
                                         name='description'
                                         value={job.description}
                                         onChange={(e) => handleWorkHistoryChange(e, index)}
                                     />
-                                    {/* {jobs.length > 1 && (
-                                        <Button onClick={() => handleDeleteWorkHistoryInput(index)}>Delete</Button>
-                                    )} */}
                                     {index === jobs.length - 1 && (
                                         <div className='job_form_add' onClick={() => handleAddWorkHistoryInput()}>
                                             <img src={addMore} alt="" />
@@ -595,7 +660,6 @@ export function JobApplyForm() {
                             <div className='job_form_desc_btn_box'>
 
                                 <Button className='job_form_submit' onClick={(e) => setCardNumber(6)}>Save and continue</Button>
-                                {/* <span >skip</span> */}
 
                             </div>
 
@@ -606,26 +670,24 @@ export function JobApplyForm() {
             {cardNumber === 6 &&
                 <Card>
                     <Card.Body className='job_apply_form_body'>
+                        <SaveAndExit changeTo={5} />
+
                         <Form className='job_form_apply_fields' >
-                            <SaveAndExit />
-
-                            {/* <Button onClick={(e) => setCardNumber(5)}>Back</Button> */}
-
                             <div>
                                 <p className='job_form_upload_desc'>Build your resume (3 of 4)</p>
                                 <label htmlFor="phone">Do you want to share some of your skills?</label>
                             </div>
                             <Form.Text>we recommend adding at least 6 skills</Form.Text>
                             <div className='job_form_field_box'>
-
                                 <input type="text" class="form-control" placeholder='Add a skill' value={inputValue} onChange={handleSkillInputChange} />
                                 <img src={addMore} alt="" className='add_skill_img' onClick={addSkill} />
                             </div>
                             {skills?.map((skill, index) => (
-                                <h4 key={skill}>{skill}</h4>
+                                <div className='job_form_field_dlt_box'>
+                                    <input className='job_form_input' type="text" value={skill} />
+                                    <img src={deleteIcon} alt="" onClick={() => { removeSkill(index) }} />
+                                </div>
                             ))}
-                            {/* <Button onClick={addSkill}>Add</Button> */}
-
                             <Button className='job_form_submit skill_btn' onClick={submitApply}>Save and continue</Button>
                         </Form>
                     </Card.Body>
