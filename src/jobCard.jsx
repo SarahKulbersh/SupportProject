@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { JobContext, EstPreviewContext, idJobToApplyContext } from './Context';
 import { useNavigate } from 'react-router-dom';
 import "./styles/recent_jobs.css";
+import { Timestamp } from 'firebase/firestore';
 
 export default function JobCard({ postingJobsData }) {
 
@@ -35,26 +36,39 @@ export default function JobCard({ postingJobsData }) {
   const openJob = (job) => {
     setJob(job);
   };
+  // time comes from the database like this "20:00 PM" => "20:00"
+  function convertTo24HourFormat(timeString) {
+    const [time, modifier] = timeString.split(" ");
+    let [hours, minutes] = time.split(":");
 
-  function convertTime(timeStr, isEST) {
-    console.log("converttimerendered")
-    const [hours, minutes] = timeStr.split(":");
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    return `${hours}:${minutes}`;
+  }
+// depending if the user is viewing the jobs in EST or IST
+  function convertTime(timeString, isEST) {
+    console.log("timeString", timeString)
+    const timeStr = convertTo24HourFormat(timeString)
+    console.log("timestr", timeStr)
+    const [hours, minutes] = timeString.split(":");
     const timeObj = new Date();
     timeObj.setHours(hours);
-    timeObj.setMinutes(minutes);
-    if (estPreview === "all") {
-      return timeObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
-
-    }
-    else if (isEST) {
-      if (estPreview === "true") {
+    timeObj.setMinutes("00");
+    if (isEST) {
+      if (estPreview === true) {
         return timeObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
       } else {
         timeObj.setHours(timeObj.getHours() + 7);
         return timeObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
       }
     } else {
-      if (estPreview === "true") {
+      if (estPreview === true) {
         timeObj.setHours(timeObj.getHours() - 7);
         return timeObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
       } else {

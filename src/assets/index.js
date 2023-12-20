@@ -18,6 +18,16 @@ import flagIcon from "./flag.svg"
 import searchIcon from "./searchIcon.svg"
 import footerLogo from "./FooterLogo.svg";
 import applyIcon from "./applyIcon.svg";
+import logo2 from "./logo2.svg"
+import myjobsIcon from "./myjobs.svg"
+import applicationIcon from "./applications.svg"
+import inboxIcon from "./inbox.svg"
+import logoutIcon from "./logout.svg"
+import notificationIcon from "./notifications.svg"
+import nextIcon from "./next.svg"
+import backButtonIcon from "./backButton.svg";
+import proflieIcon from "./profile.svg"
+import messageStartIcon from "./message_start.svg";
 export {
     backArrowIcon, uploadIcon, orLineIcon, crossIcon, dragIcon, addMore, deleteIcon, leftArrow, rightArrow, optionsIcon,
     workIcon,
@@ -29,5 +39,15 @@ export {
     flagIcon,
     searchIcon,
     footerLogo,
-    applyIcon
+    applyIcon,
+    logo2,
+    applicationIcon,
+    inboxIcon,
+    logoutIcon,
+    myjobsIcon,
+    nextIcon,
+    notificationIcon,
+    backButtonIcon,
+    proflieIcon,
+    messageStartIcon
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
 import { useState } from 'react';
-import { collection, setDoc, doc, serverTimestamp } from "firebase/firestore";
+import { collection, updateDoc, doc, serverTimestamp } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
 import { leftArrow, rightArrow } from './assets';
@@ -11,7 +11,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import parse from 'html-react-parser';
 
-export function PostJobForm() {
+export function UpdatePostJobForm({job, jobId}) {
 
     const hoursList = [
         "00:00 AM", "01:00 AM", "02:00 AM", "03:00 AM", "04:00 AM", "05:00 AM",
@@ -20,22 +20,22 @@ export function PostJobForm() {
         "06:00 PM", "07:00 PM", "08:00 PM", "09:00 PM", "10:00 PM", "11:00 PM"
     ];
 
-    const [location, setLocation] = useState('');
-    const [jobTitle, setJobTitle] = useState('');
-    const [selectedFullPart, setSelectedFullPart] = useState('full-time');
-    const [selectedTime, setSelectedTime] = useState("Eastern Time (EST)");
-    const [startTime, setStartTime] = useState("08:00 AM");
-    const [endTime, setEndTime] = useState("04:00 PM");
-    const [description, setDescription] = useState('');
+    const [location, setLocation] = useState(job.jobLocation);
+    const [jobTitle, setJobTitle] = useState(job.jobTitle);
+    const [selectedFullPart, setSelectedFullPart] = useState(job.isFullTimeJob);
+    const [selectedTime, setSelectedTime] = useState(job.isEST?("Eastern Time (EST)") : ("Israel Time (IST)"));
+    const [startTime, setStartTime] = useState(job.startedTimeFrom);
+    const [endTime, setEndTime] = useState(job.endedTimeIn);
+    const [description, setDescription] = useState(job.jobDescription);
 
     const handleSetDescription = (description) => {
         const newDescription = description.split('\n').join('<r/>');
         setDescription(newDescription);
     }
     const [selectedShowPay, setSelectedShowPay] = useState('Range');
-    const [minPay, setMinPay] = useState('');
-    const [maxPay, setMaxPay] = useState('');
-    const [selectedRatePer, setSelectedRatePer] = useState('per year');
+    const [minPay, setMinPay] = useState(job.minPay);
+    const [maxPay, setMaxPay] = useState(job.maxPay);
+    const [selectedRatePer, setSelectedRatePer] = useState(job.jobPaymentPer);
 
     const [cardNumber, setCardNumber] = useState(1);
     const navigate = useNavigate();
@@ -67,8 +67,8 @@ export function PostJobForm() {
         return selectedTime === "Eastern Time (EST)";
     };
 
-    const addJobPost = async (e) => {
-
+    const updateJobPost = async (e) => {
+        console.log(jobId)
         const userId = sessionStorage.getItem("userId");
         console.log("userId", userId)
 
@@ -78,10 +78,10 @@ export function PostJobForm() {
         const person = collection(database, "persons");
         const userRef = doc(person, userId);
         const subcollectionRef = collection(userRef, "postingJobs");
+        const postRef = doc(subcollectionRef, jobId);
+
         try {
-            await setDoc(doc(subcollectionRef, getCurrentDateTimeString()), {
-                postingJobId: postingJobIdString,
-                identityUserPublishId: userId,
+            await updateDoc(postRef, {
                 isEST: isEst(),
                 isFullTimeJob: selectedFullPart,
                 jobDescription: description,
@@ -94,11 +94,8 @@ export function PostJobForm() {
                 jobTitle: jobTitle,
                 updatedAt: serverTimestamp(),
                 isJobActive: true,
-                createdAt: serverTimestamp()
             });
             console.log("Document added to subcollection successfully!");
-            navigate(-1)
-
         } catch (error) {
             console.log("Error adding document:", error);
         }
@@ -120,9 +117,9 @@ export function PostJobForm() {
                                 <Form.Control className='job_form_input' type='text' required onChange={(e) => setLocation(e.target.value)} value={location} />
                             </Form.Group>
                             <div className='job_apply_end_btns'>
-                                <button className='job_form_back_btn' onClick={() => handleBackBtn(1)}>
+                                {/* <button className='job_form_back_btn' onClick={() => handleBackBtn(1)}>
                                     <img src={leftArrow} alt="" />
-                                    Back</button>
+                                    Back</button> */}
                                 <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(1)}>
                                     continue  <img src={rightArrow} alt="" />
                                 </button>
@@ -322,7 +319,7 @@ export function PostJobForm() {
                                     Submit  <img src={rightArrow} alt="" />
                                 </button> */}
                                 {/* <button className='job_form_submit skill_btn' onClick={() => addJobPost()}>Submit</button> */}
-                                <Button className='job_form_submit skill_btn' onClick={() => addJobPost()}>Submit</Button>
+                                <Button className='job_form_submit skill_btn' onClick={() => updateJobPost()}>Submit</Button>
 
                             </div>
 

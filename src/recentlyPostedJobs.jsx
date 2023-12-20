@@ -14,7 +14,9 @@ export function RecentlyPostedJobs() {
     async function getFourLatestJobs() {
       try {
         const postingJobsSubcollection = await getDocs(collectionGroup(database, "postingJobs"));
-        const fetchedPostingJobsData = postingJobsSubcollection.docs.map(doc => doc.data());
+        const fetchedPostingJobsData = postingJobsSubcollection.docs.map(
+          (doc) => doc.data())
+          .filter((job) => job.isJobActive);
         fetchedPostingJobsData.sort((a, b) => a.createdAt - b.createdAt);
         setPostingJobsData(fetchedPostingJobsData.slice(-4)); // Take the last 4 jobs
       } catch (error) {

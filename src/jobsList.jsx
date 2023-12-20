@@ -9,7 +9,7 @@ import { SearchBox } from './searchBox';
 import { EstPreviewContext } from './Context';
 import "./styles/jobResults.css"
 import NavBar from "./components/NavBar";
-
+import Footer from "./components/Footer"
 export default function JobsList() {
 
   const searchTerm = useParams().searchTerm;
@@ -88,36 +88,32 @@ export default function JobsList() {
 
   return (
     <>
-      <div>
         <NavBar />
-
         <div className='job_results'>
-
           <SearchBox />
           {jobs.length > 0 && (
             <>
-                      <div>
-                      <div className='letssupport'>Show me job times in</div>
-                      <div className='job_result_zone'>
-                        <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === false ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
-                        <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === true ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
-                      </div>
-                    </div>
-          
-            <div className='job_result_box'>
-
-              <div className='recent_job_list'>
-                <JobCard postingJobsData={jobs} />
+              <div>
+                <div className='letssupport'>Show me job times in</div>
+                <div className='job_result_zone'>
+                  <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === false ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
+                  <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === true ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
+                </div>
               </div>
-              <JobDetails />
-            </div >
+
+              <div className='job_result_box'>
+
+                <div className='recent_job_list'>
+                  <JobCard postingJobsData={jobs} />
+                </div>
+                <JobDetails />
+              </div >
             </>
           )}
           {showNoJobs && jobs.length === 0 && <p className="no-jobs-message">No jobs found!</p>}
 
         </div>
-
-      </div>
+        <Footer />
     </>
   )
 }

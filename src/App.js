@@ -8,6 +8,8 @@ import { PostJobForm } from './postJobForm'
 import { JobApplyForm } from './jobApplyForm';
 import { UserLogin } from './userLogin';
 import "./styles/index.css"
+import AllRoutes from './allRoutes';
+
 function App() {
   const [job, setJob] = useState('');
   const [estPreview, setEstPreview] = useState(false);
@@ -19,13 +21,7 @@ function App() {
       <JobContext.Provider value={{ job: job, setJob: setJob }}>
         <EstPreviewContext.Provider value={{ estPreview: estPreview, setEstPreview: setEstPreview }}>
           <idJobToApplyContext.Provider value={{ jobToApplyId: jobToApplyId, setJobToApplyId: setJobToApplyId }}>
-            <Routes>
-              <Route path='/post' element={<PostJobForm />} />
-              <Route path='/apply' element={<JobApplyForm />} />
-              <Route path='/' element={<LandingPage />} />
-              <Route path='/login' element={<UserLogin />} />
-              <Route path='jobsList/:searchTerm' element={<JobsList />} />
-            </Routes>
+            <AllRoutes/>
           </idJobToApplyContext.Provider>
         </EstPreviewContext.Provider>
       </JobContext.Provider >
