@@ -15,16 +15,6 @@ export default function JobsList() {
   const searchTerm = useParams().searchTerm;
   const [jobs, setJobs] = useState([]);
   const { estPreview, setEstPreview } = useContext(EstPreviewContext)
-  const [showNoJobs, setShowNoJobs] = useState(false);
-  useEffect(() => {
-    const delay = 4000; // Adjust the delay time in milliseconds to your preference
-
-    const timer = setTimeout(() => {
-      setShowNoJobs(true);
-    }, delay);
-
-    return () => clearTimeout(timer); // Clear the timer if component is unmounted
-  }, []);
 
   function handleTimePreview() {
     if (estPreview === true)
@@ -110,7 +100,7 @@ export default function JobsList() {
               </div >
             </>
           )}
-          {showNoJobs && jobs.length === 0 && <p className="no-jobs-message">No jobs found!</p>}
+          {jobs.length === 0 && <p className="no-jobs-message">No jobs found!</p>}
 
         </div>
         <Footer />

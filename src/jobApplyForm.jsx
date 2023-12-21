@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
-import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
+import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
 import { idJobToApplyContext } from './Context';
@@ -97,7 +97,6 @@ export function JobApplyForm() {
         }
     }
     const uploadFile = async () => {
-
         updateIdentitiesUserApplies()
         const myId = uuidv4()
 
@@ -373,6 +372,9 @@ export function JobApplyForm() {
             console.error("Error adding document:", error);
         }
     }
+
+
+
     async function submitUserDetails() {
 
         const userRef = doc(database, "persons", userId)

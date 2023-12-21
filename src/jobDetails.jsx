@@ -58,12 +58,11 @@ export default function JobDetails() {
     return null;
   }
   function handleApply(jobId) {
-    alert("apply")
     setJobToApplyId(jobId);
     console.log(jobId)
     console.log("userId", userId)
     if (sessionStorage.getItem("userId") === null) {
-      navigate('/login')
+      navigate('/signin')
 
     }
     else {

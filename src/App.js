@@ -1,12 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-import LandingPage from './landingPage'
-import JobsList from './jobsList';
-import { Route, Routes } from 'react-router-dom';
 import React, { useState } from 'react';
 import { JobContext, EstPreviewContext, idJobToApplyContext, userIdContext } from './Context';
-import { PostJobForm } from './postJobForm'
-import { JobApplyForm } from './jobApplyForm';
-import { UserLogin } from './userLogin';
 import "./styles/index.css"
 import AllRoutes from './allRoutes';
 

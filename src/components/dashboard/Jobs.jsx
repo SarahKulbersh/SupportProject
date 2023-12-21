@@ -28,15 +28,13 @@ export const Jobs = () => {
         } else if (selectedValue === "Delete") {
             handleDelete(jobId)
             // Confirm deletion and delete the selected job
-        } else {
-            // Do nothing for the "Actions" option
-        }
+        } 
 
     }
 
     const handleDelete = async (jobId) => {
         console.log("delete")
-        const userId = "123@gmail.com"
+        const userId = sessionStorage.getItem("userId")
         const postingJobsRef = collection(database, `persons/${userId}/postingJobs`);
         const jobDoc = await doc(postingJobsRef, jobId);
         try {
@@ -96,7 +94,7 @@ export const Jobs = () => {
                                 <div className='job_table_td job_table_td_name'>{jobTitle}</div>
                                 <div className='job_table_td'>created {new Date(createdAt.seconds * 1000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
                                 <div className='job_table_td'>
-                                    <select onChange={(e) => handleAction(e, id, jobs[i])} name="" id="" className="job_table_select">
+                                    <select onChange={(e) => handleAction(e, id, jobs[i])} className="job_table_select">
                                         <option value="Actions">Actions</option>
                                         <option value="Edit">Edit</option>
                                         <option value="Delete">Delete</option>

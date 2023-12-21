@@ -16,7 +16,7 @@ export default function NavBar() {
         setUserId(null);
       };
       const handleSignIn = (e) => {
-        navigate('/login')
+        navigate('/signin')
       };
     
     return (

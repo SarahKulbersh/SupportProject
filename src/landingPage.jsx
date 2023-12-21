@@ -37,10 +37,7 @@ function LandingPage() {
               <button className='look_work_btn'>View available oppurtunities</button>
             </div>
           </div>
-
-  
       <Footer />
-
     </>
   )
 }

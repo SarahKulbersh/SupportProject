@@ -28,6 +28,12 @@ import nextIcon from "./next.svg"
 import backButtonIcon from "./backButton.svg";
 import proflieIcon from "./profile.svg"
 import messageStartIcon from "./message_start.svg";
+import attachmentIcon from "./attachIcon.svg";
+import resumeIcon from "./resume.svg";
+import editIcon from "./editIcon.svg";
+import delteRedIcon from "./redDelete.svg";
+import googleIcon from "./gooogle.svg";
+import faceBookIcon from "./facebookIcon.svg"
 export {
     backArrowIcon, uploadIcon, orLineIcon, crossIcon, dragIcon, addMore, deleteIcon, leftArrow, rightArrow, optionsIcon,
     workIcon,
@@ -49,5 +55,11 @@ export {
     notificationIcon,
     backButtonIcon,
     proflieIcon,
-    messageStartIcon
+    messageStartIcon,
+    attachmentIcon,
+    resumeIcon,
+    editIcon,
+    delteRedIcon,
+    googleIcon,
+    faceBookIcon
 }
