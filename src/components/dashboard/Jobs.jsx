@@ -35,7 +35,7 @@ export const Jobs = () => {
     const handleDelete = async (jobId) => {
         console.log("delete")
         const userId = sessionStorage.getItem("userId")
-        const postingJobsRef = collection(database, `persons/${userId}/postingJobs`);
+        const postingJobsRef = collection(database, `person/${userId}/postingJobs`);
         const jobDoc = await doc(postingJobsRef, jobId);
         try {
             await updateDoc(jobDoc, {
@@ -50,7 +50,7 @@ export const Jobs = () => {
     }
     const fetchPostingJobs = async page => {
         const userId = sessionStorage.getItem("userId")
-        const postingJobsRef = collection(database, `persons/${userId}/postingJobs`);
+        const postingJobsRef = collection(database, `person/${userId}/postingJobs`);
         const docsSnap = await getDocs(postingJobsRef);
 
         const jobs = docsSnap.docs.map((doc) => ({

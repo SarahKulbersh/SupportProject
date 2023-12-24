@@ -36,6 +36,39 @@ export function PostJobForm() {
     const [minPay, setMinPay] = useState('');
     const [maxPay, setMaxPay] = useState('');
     const [selectedRatePer, setSelectedRatePer] = useState('per year');
+    const [errors, setErrors] = useState({}); // To store error messages
+
+    const errorValues = Object.values(errors);
+
+    const validationCard1 = {
+
+        location: () => {
+            if (location.length === 0) {
+                return true;
+            }
+
+            const nameRegex = /^[\u0590-\u05FFa-zA-Z]+$/u;
+            return nameRegex.test(location.trim());
+        },
+
+        jobTitle: () => {
+            if (jobTitle === '') {
+                return "Title is required.";
+            }
+
+            const nameRegex = /^[\u0590-\u05FFa-zA-Z]+$/u;
+            return nameRegex.test(jobTitle.trim());
+        }
+    };
+
+    const handleBlurCard1 = (field) => {
+
+        const error = validationCard1[field](field.trim()); // Trim the value for firstName and lastName
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [field]: error || 'Invalid input',
+        }));
+    };
 
     const [cardNumber, setCardNumber] = useState(1);
     const navigate = useNavigate();
@@ -75,7 +108,7 @@ export function PostJobForm() {
 
         const postingJobIdString = getCurrentDateTimeString() + '_' + userId;
 
-        const person = collection(database, "persons");
+        const person = collection(database, "person");
         const userRef = doc(person, userId);
         const subcollectionRef = collection(userRef, "postingJobs");
         try {
@@ -113,18 +146,33 @@ export function PostJobForm() {
                         <Form className='job_form_apply_fields' >
                             <Form.Group className='job_apply_field'>
                                 <Form.Label className='job_form_field'>Job title *</Form.Label>
-                                <Form.Control className='job_form_input' type='text' required onChange={(e) => setJobTitle(e.target.value)} value={jobTitle} />
+                                <Form.Control className='job_form_input' type='text' required onChange={(e) => setJobTitle(e.target.value)} onBlur={() => handleBlurCard1('jobTitle')} value={jobTitle} />
+                                {errors.jobTitle && <p className="error-message">{errors.jobTitle}</p>}
                             </Form.Group>
                             <Form.Group className='job_apply_field'>
                                 <Form.Label className='job_form_field'>Where is your company located *</Form.Label>
-                                <Form.Control className='job_form_input' type='text' required onChange={(e) => setLocation(e.target.value)} value={location} />
+                                <Form.Control className='job_form_input' type='text' required onChange={(e) => setLocation(e.target.value)} onBlur={() => handleBlurCard1('location')} value={location} />
+                                {errors.location && <p className="error-message">{errors.location}</p>}
                             </Form.Group>
                             <div className='job_apply_end_btns'>
                                 <button className='job_form_back_btn' onClick={() => handleBackBtn(1)}>
                                     <img src={leftArrow} alt="" />
                                     Back</button>
-                                <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(1)}>
-                                    continue  <img src={rightArrow} alt="" />
+                                <button className='job_form_submit skill_btn' onClick={() => {
+                                    if (jobTitle === '') {
+                                        return; // Do not proceed with signUp function if any required field is empty
+                                    }
+
+
+                                    // Validate all fields before submission
+                                    for (const field in validationCard1) {
+                                        handleBlurCard1(field);
+                                    }
+                                    console.log(errors)
+                                    if (errorValues.every(value => value === true)) {
+                                        handleContinueBtn(1);
+                                    }
+                                }}>continue<img src={rightArrow} alt="" />
                                 </button>
                             </div>
 
@@ -174,14 +222,14 @@ export function PostJobForm() {
                                     <div className='job_date_from_to'>
                                         <Form.Label>From</Form.Label>
                                         <Form.Select value={startTime} onChange={(e) => setStartTime(e.target.value)}>
-                                        {hoursList.map((hour, index) => (
+                                            {hoursList.map((hour, index) => (
                                                 <option key={index} value={hour}>
                                                     {hour}
                                                 </option>
                                             ))}                                        </Form.Select>
                                         <Form.Label>Until</Form.Label>
                                         <Form.Select value={endTime} onChange={(e) => setEndTime(e.target.value)}>
-                                             {hoursList.map((hour, index) => (
+                                            {hoursList.map((hour, index) => (
                                                 <option key={index} value={hour}>
                                                     {hour}
                                                 </option>
@@ -258,11 +306,12 @@ export function PostJobForm() {
                                 <Form.Group className='job_form_filter'>
                                     <div>
                                         <Form.Label className='job_form_field'>Minimum</Form.Label>
-                                        <Form.Control value={minPay} className='job_form_input' type='text' required onChange={(e) => setMinPay(e.target.value)} />
+                                        <Form.Control value={minPay} className='job_form_input' type='number' required onChange={(e) => setMinPay(e.target.value)} />
+
                                     </div>
                                     <div>
                                         <Form.Label className='job_form_field'>Maximum</Form.Label>
-                                        <Form.Control value={maxPay} className='job_form_input' type='text' required onChange={(e) => setMaxPay(e.target.value)} />
+                                        <Form.Control value={maxPay} className='job_form_input' type='number' required onChange={(e) => setMaxPay(e.target.value)}/>
                                     </div>
 
                                 </Form.Group>
@@ -286,14 +335,14 @@ export function PostJobForm() {
 
                             </div>
 
-                                <div className='job_apply_end_btns'>
-                                    <button className='job_form_back_btn' onClick={() => handleBackBtn(4)}>
-                                        <img src={leftArrow} alt="" />
-                                        Back</button>
-                                    <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(4)}>
-                                        continue  <img src={rightArrow} alt="" />
-                                    </button>
-                                </div>
+                            <div className='job_apply_end_btns'>
+                                <button className='job_form_back_btn' onClick={() => handleBackBtn(4)}>
+                                    <img src={leftArrow} alt="" />
+                                    Back</button>
+                                <button className='job_form_submit skill_btn' onClick={() => {handleContinueBtn(4)}}>
+                                    continue  <img src={rightArrow} alt="" />
+                                </button>
+                            </div>
 
                         </Form>
 
