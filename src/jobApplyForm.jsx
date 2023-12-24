@@ -16,6 +16,7 @@ export function JobApplyForm() {
     const navigate = useNavigate();
     const userId = sessionStorage.getItem("userId") ?? null;
     const [cardNumber, setCardNumber] = useState(1);
+    const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
 
     const SaveAndExit = ({ changeTo }) => {
         return (<div className='job_save_exit'>
@@ -30,17 +31,8 @@ export function JobApplyForm() {
         </div>)
     }
 
-    // card 1
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
-    const [email, setEmail] = useState('')
-    const [city, setCity] = useState('')
-    const [phone, setPhone] = useState('')
-    const [phoneAreaCode, setPhoneAreaCode] = useState('')
-    const [resumeOption, setResumeOption] = useState('')
-
+    // handling errors in card number 1
     const [errors, setErrors] = useState({}); // To store error messages
-
     const errorValues = Object.values(errors);
 
     const validation = {
@@ -64,7 +56,7 @@ export function JobApplyForm() {
         },
         city: () => {
             if (city === '')
-            return true;
+                return true;
 
             const nameRegex = /^[a-zA-Z .'-]+$/;
             return nameRegex.test(city.trim());
@@ -79,12 +71,21 @@ export function JobApplyForm() {
     };
     const handleBlur = (field) => {
 
-        const error = validation[field]( field === 'phone' ? phone : field.trim()); // Trim the value for firstName and lastName
+        const error = validation[field](field === 'phone' ? phone : field.trim()); // Trim the value for firstName and lastName
         setErrors((prevErrors) => ({
             ...prevErrors,
             [field]: error || 'Invalid input',
         }));
     };
+
+    // card 1
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
+    const [email, setEmail] = useState('')
+    const [city, setCity] = useState('')
+    const [phone, setPhone] = useState('')
+    const [phoneAreaCode, setPhoneAreaCode] = useState('')
+    const [resumeOption, setResumeOption] = useState('')
 
     //card 2
     async function submitUserDetailsNoResume() {
@@ -120,10 +121,8 @@ export function JobApplyForm() {
             navigate(-1)
         }
     }
-    //card 3 
-    // file uploading
+    //card 3 - file uploading
     const [imgFile, setImageFile] = useState('');
-    const [imgUrl, setImgUrl] = useState('');
 
     async function submitUserFileDetails(fileName) {
 
@@ -142,24 +141,23 @@ export function JobApplyForm() {
             console.error("Error submitUserDetails:", error);
         }
     }
-
     const uploadFile = async () => {
         const myId = uuidv4()
 
         if (imgFile != null) {
-                // db ref
-                const refFIle = ref(storage, "resumes/" + imgFile.name + myId);
-                // uploading file bytes
-                await uploadBytes(refFIle, imgFile);
+            // db ref
+            const refFIle = ref(storage, "resumes/" + imgFile.name + myId);
+            // uploading file bytes
+            await uploadBytes(refFIle, imgFile);
 
-                const fileName = imgFile.name + myId
-                await submitUserFileDetails(fileName)
-                await updateIdentitiesUserApplies()        
+            const fileName = imgFile.name + myId
+            await submitUserFileDetails(fileName)
+            await updateIdentitiesUserApplies()
         }
-    }; 
-    
+    };
 
-    // card 4
+
+    // card 4 - education
     const today = new Date();
     const currentYear = today.getFullYear();
     const years = [...Array(31).keys()].map((year) => currentYear - year);
@@ -174,13 +172,13 @@ export function JobApplyForm() {
             timeOfStudyToMonth: "",
             timeOfStudyToYear: ""
         }])
-    const handleChange = (event, index) => {
+    const handleEducationChange = (event, index) => {
         let { name, value } = event.target;
         let onChangeValue = [...education];
         onChangeValue[index][name] = value;
         setEducation(onChangeValue);
     };
-    const handleAddInput = () => {
+    const handleAddEducationInput = () => {
         setEducation([...education, {
             educationLevel: "",
             schoolName: "",
@@ -196,7 +194,7 @@ export function JobApplyForm() {
         newArray.splice(index, 1);
         setEducation(newArray);
     };
-    //card 5
+    //card 5 - work history
     const [jobs, setJobs] = useState([
         {
             company: "",
@@ -229,7 +227,7 @@ export function JobApplyForm() {
         newArray.splice(index, 1);
         setJobs(newArray);
     };
-    //card 6
+    //card 6 - skills
     const [skills, setSkills] = useState([])
     const [inputValue, setInputValue] = useState('');
 
@@ -243,11 +241,8 @@ export function JobApplyForm() {
     const removeSkill = (index) => {
         setSkills(skills.filter((item, i) => i !== index));
     };
-    const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
 
-
-    const [validationErrors, setValidationErrors] = useState([])
-
+    // functions for submitting applications
     const getCurrentDateTimeString = () => {
         const currentDate = new Date();
 
@@ -260,25 +255,21 @@ export function JobApplyForm() {
 
         return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
     }
-    // send in application
     function submitApply() {
 
-        if (validationErrors.length === 0) {
-            skills?.map(s => (
-                submitSkills(s)
-            ))
-            education?.map(e => (
-                submitEducation(e)
-            ))
-            jobs?.map(job => (
-                submitWorkHistory(job)
-            ))
-            submitUserDetails()
-            updateApplyJobs()
-            updateIdentitiesUserApplies()
-            navigate(-1)
-        }
-
+        skills?.map(s => (
+            submitSkills(s)
+        ))
+        education?.map(e => (
+            submitEducation(e)
+        ))
+        jobs?.map(job => (
+            submitWorkHistory(job)
+        ))
+        submitUserDetails()
+        updateApplyJobs()
+        updateIdentitiesUserApplies()
+        navigate(-1)
     }
     async function submitSkills(s) {
 
@@ -380,9 +371,6 @@ export function JobApplyForm() {
             console.error("Error adding document:", error);
         }
     }
-
-
-
     async function submitUserDetails() {
 
         const userRef = doc(database, "person", userId)
@@ -428,7 +416,7 @@ export function JobApplyForm() {
                             </div>
                             <div className='job_apply_field'>
                                 <Form.Label>City (optional)</Form.Label>
-                                <Form.Control type='text' onChange={(e) => setCity(e.target.value)} onBlur={() => handleBlur('city')}/>
+                                <Form.Control type='text' onChange={(e) => setCity(e.target.value)} onBlur={() => handleBlur('city')} />
                                 {errors.city && <p className="error-message">{errors.city}</p>}
                             </div>
                             <div className='job_apply_field'>
@@ -437,12 +425,12 @@ export function JobApplyForm() {
                                     <Form.Select size="lg" className='job_form_phone_code' onChange={(e) => setPhoneAreaCode(e.target.value)} required value={phoneAreaCode}>
                                         <option>+1</option>
                                     </Form.Select>
-                                    <Form.Control className='job_form_input' type='text' id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} onBlur={() => handleBlur('phone')}/>
+                                    <Form.Control className='job_form_input' type='text' id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} onBlur={() => handleBlur('phone')} />
                                 </div>
                                 {errors.phone && <p className="error-message">{errors.phone}</p>}
                             </div>
-                            <button className='job_form_submit' type='button'   onClick={() => {
-                                
+                            <button className='job_form_submit' type='button' onClick={() => {
+
                                 // Validate all fields before submission
                                 for (const field in validation) {
                                     handleBlur(field);
@@ -526,10 +514,10 @@ export function JobApplyForm() {
                                 {/* <Button onClick={uploadFile}>Upload</Button> */}
                             </div>
                             <div>
-          <p>uploading resume file</p>
-          <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
-          <button onClick={uploadFile} >upload file</button>
-        </div>
+                                <p>uploading resume file</p>
+                                <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
+                                <button onClick={uploadFile} >upload file</button>
+                            </div>
 
                         </Form>
                     </Card.Body>
@@ -547,17 +535,17 @@ export function JobApplyForm() {
                             {education?.map((e, index) => (
                                 <div key={index}>
                                     <Form.Label className='job_form_field'>Level of education *</Form.Label>
-                                    <Form.Control className='job_form_input' type='text' name='educationLevel' required value={e.educationLevel} onChange={(e) => handleChange(e, index)} />
+                                    <Form.Control className='job_form_input' type='text' name='educationLevel' required value={e.educationLevel} onChange={(e) => handleEducationChange(e, index)} />
                                     <Form.Label className='job_form_field'>Field of study</Form.Label>
-                                    <Form.Control className='job_form_input' type='text' name='studyName' required value={e.studyField} onChange={(e) => handleChange(e, index)} />
+                                    <Form.Control className='job_form_input' type='text' name='studyName' required value={e.studyField} onChange={(e) => handleEducationChange(e, index)} />
                                     <Form.Label className='job_form_field'>Name of school</Form.Label>
-                                    <Form.Control className='job_form_input' type='text' name='schoolName' required value={e.schoolName} onChange={(e) => handleChange(e, index)} />
+                                    <Form.Control className='job_form_input' type='text' name='schoolName' required value={e.schoolName} onChange={(e) => handleEducationChange(e, index)} />
 
                                     <Form.Text className='job_form_field'>Time period</Form.Text>
                                     <Form.Group className='job_edu_form_date'>
                                         <Form.Label>From</Form.Label>
                                         <div>
-                                            <Form.Select name='timeOfStudyFromMonth' value={e.timeOfStudyFromMonth} onChange={(e) => handleChange(e, index)}>
+                                            <Form.Select name='timeOfStudyFromMonth' value={e.timeOfStudyFromMonth} onChange={(e) => handleEducationChange(e, index)}>
                                                 <option>Month</option>
                                                 {[...new Array(12).keys()].map((i) => (
                                                     <option key={i + 1} value={i + 1}>
@@ -565,7 +553,7 @@ export function JobApplyForm() {
                                                     </option>
                                                 ))}
                                             </Form.Select>
-                                            <Form.Select name='timeOfStudyFromYear' value={e.timeOfStudyFromYear} onChange={(e) => handleChange(e, index)}>
+                                            <Form.Select name='timeOfStudyFromYear' value={e.timeOfStudyFromYear} onChange={(e) => handleEducationChange(e, index)}>
                                                 <option>Year</option>
                                                 {years.map((year) => (
                                                     <option key={year} value={year}>
@@ -578,7 +566,7 @@ export function JobApplyForm() {
                                     <Form.Group className='job_edu_form_date'>
                                         <Form.Label>To</Form.Label>
                                         <div>
-                                            <Form.Select name='timeOfStudyToMonth' value={e.timeOfStudyToMonth} onChange={(e) => handleChange(e, index)}>
+                                            <Form.Select name='timeOfStudyToMonth' value={e.timeOfStudyToMonth} onChange={(e) => handleEducationChange(e, index)}>
                                                 <option>Month</option>
                                                 {[...new Array(12).keys()].map((i) => (
                                                     <option key={i + 1} value={i + 1}>
@@ -586,7 +574,7 @@ export function JobApplyForm() {
                                                     </option>
                                                 ))}
                                             </Form.Select>
-                                            <Form.Select name='timeOfStudyToYear' value={e.timeOfStudyToYear} onChange={(e) => handleChange(e, index)}>
+                                            <Form.Select name='timeOfStudyToYear' value={e.timeOfStudyToYear} onChange={(e) => handleEducationChange(e, index)}>
                                                 <option>Year</option>
                                                 {years.map((year) => (
                                                     <option key={year} value={year}>
@@ -597,7 +585,7 @@ export function JobApplyForm() {
                                         </div>
                                     </Form.Group>
                                     {index === education.length - 1 && (
-                                        <div className='job_form_add' onClick={() => handleAddInput()}>
+                                        <div className='job_form_add' onClick={() => handleAddEducationInput()}>
                                             <img src={addMore} alt="" />
                                             Add more
                                         </div>
