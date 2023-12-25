@@ -22,7 +22,7 @@ export function JobApplyForm() {
         return (<div className='job_save_exit'>
             <div className='job_save_exit_head'>
                 {cardNumber !== 1 && <img onClick={() => { setCardNumber(changeTo) }} className='' src={backArrowIcon} alt="" />}
-                <div className='job_save_exit_text' onClick={(e) => navigate(-1)}>Save and exit</div>
+                <div className='job_save_exit_text' onClick={(e) => navigate(-1)}>Exit</div>
             </div>
             <div className='job_save_exit_progress'>
                 <div style={{ width: `${((cardNumber / 5) * 100)}%` }} className='job_save_exit_complete'></div>

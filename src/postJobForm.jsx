@@ -95,10 +95,8 @@ export function PostJobForm() {
         return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
     }
     const isEst = () => {
-        console.log(selectedTime)
-        // const selectedTime = "Eastern Time (EST)";
         return selectedTime === "Eastern Time (EST)";
-    };
+    }
 
     const addJobPost = async (e) => {
 
@@ -210,7 +208,6 @@ export function PostJobForm() {
                                 required
                                 value={selectedTime}
                                 className='job_apply_select'
-                                // defaultValue={"Eastern Time (EST)"}
                                 onChange={(e) => setSelectedTime(e.target.value)}
                             >
                                 <option value={"Eastern Time (EST)"}>Eastern Time (EST)</option>
