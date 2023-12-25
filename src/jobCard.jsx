@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { JobContext, EstPreviewContext, idJobToApplyContext } from './Context';
+import { JobContext, EstPreviewContext } from './Context';
 import { useNavigate } from 'react-router-dom';
 import "./styles/recent_jobs.css";
 import { Timestamp } from 'firebase/firestore';
@@ -9,7 +9,6 @@ export default function JobCard({ postingJobsData }) {
   const navigate = useNavigate();
 
   const { estPreview, setEstPreview } = useContext(EstPreviewContext)
-  const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
   const userId = sessionStorage.getItem("userId") ?? null;
   const { job, setJob } = useContext(JobContext);
   const [hasData, setHasData] = useState(false);
@@ -36,26 +35,8 @@ export default function JobCard({ postingJobsData }) {
   const openJob = (job) => {
     setJob(job);
   };
-  // time comes from the database like this "20:00 PM" => "20:00"
-  function convertTo24HourFormat(timeString) {
-    const [time, modifier] = timeString.split(" ");
-    let [hours, minutes] = time.split(":");
-
-    if (hours === "12") {
-      hours = "00";
-    }
-
-    if (modifier === "PM") {
-      hours = parseInt(hours, 10) + 12;
-    }
-
-    return `${hours}:${minutes}`;
-  }
 // depending if the user is viewing the jobs in EST or IST
   function convertTime(timeString, isEST) {
-    console.log("timeString", timeString)
-    const timeStr = convertTo24HourFormat(timeString)
-    console.log("timestr", timeStr)
     const [hours, minutes] = timeString.split(":");
     const timeObj = new Date();
     timeObj.setHours(hours);

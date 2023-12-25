@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { Card, Button, Container, Form } from 'react-bootstrap';
-import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
+import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, getDoc, Timestamp } from "firebase/firestore";
 import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
 import { idJobToApplyContext } from './Context';
 import { storage } from "./firebaseConfig";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 import "./styles/jobApplyForm.css"
 import { addMore, backArrowIcon, crossIcon, deleteIcon, dragIcon, orLineIcon, uploadIcon } from "./assets/index"
@@ -16,7 +16,7 @@ export function JobApplyForm() {
     const navigate = useNavigate();
     const userId = sessionStorage.getItem("userId") ?? null;
     const [cardNumber, setCardNumber] = useState(1);
-    const { jobToApplyId, setJobToApplyId } = useContext(idJobToApplyContext)
+    const jobToApplyId = sessionStorage.getItem("jobId")
 
     const SaveAndExit = ({ changeTo }) => {
         return (<div className='job_save_exit'>
@@ -113,7 +113,8 @@ export function JobApplyForm() {
         else if (resumeOption === 3) {
             try {
                 submitUserDetailsNoResume()
-                updateIdentitiesUserApplies()
+                // updateIdentitiesUserApplies()
+                addToApplicationsCollection()
                 updateApplyJobs()
             } catch (err) {
                 console.log(err)
@@ -152,7 +153,8 @@ export function JobApplyForm() {
 
             const fileName = imgFile.name + myId
             await submitUserFileDetails(fileName)
-            await updateIdentitiesUserApplies()
+            // await updateIdentitiesUserApplies()
+            await addToApplicationsCollection()
         }
     };
 
@@ -268,7 +270,8 @@ export function JobApplyForm() {
         ))
         submitUserDetails()
         updateApplyJobs()
-        updateIdentitiesUserApplies()
+        // updateIdentitiesUserApplies()
+        addToApplicationsCollection()
         navigate(-1)
     }
     async function submitSkills(s) {
@@ -384,6 +387,23 @@ export function JobApplyForm() {
         }
         try {
             await updateDoc(userRef, additionalData);
+        } catch (error) {
+            console.error("Error submitUserDetails:", error);
+        }
+    }
+    async function addToApplicationsCollection() {
+        const employeeId = extractEmailFromDateString(sessionStorage.getItem("jobId"));
+        const postDate = extractDateTime(sessionStorage.getItem("jobId"))
+        const userId = sessionStorage.getItem("userId");
+        const applicationDocId = employeeId +"_#_" + postDate+"_#_"+userId;
+
+        try {
+            await setDoc(doc(database, "jobApplications", applicationDocId), {
+                createdAt: serverTimestamp(),
+                firstName: firstName,
+                lastName: lastName,
+                jobTitle: sessionStorage.getItem("jobTitle"), 
+        });
         } catch (error) {
             console.error("Error submitUserDetails:", error);
         }

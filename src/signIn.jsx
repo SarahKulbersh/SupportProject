@@ -70,7 +70,7 @@ export const SignIn = () => {
         });
     };
     const submitUserDetailsGoogleSignIn = async (userEmail, firstName, lastName) => {
-        console.log("firstName", firstName)
+
         try {
             await setDoc(doc(database, "person", userEmail), {
                 createdAt: serverTimestamp(),
@@ -96,6 +96,8 @@ export const SignIn = () => {
 
             if (userData) {
                 const decryptedPassword = decrypt(userData.uPassword);
+                console.log(decryptedPassword)
+
                 if (userData.uPassword === '') {
                     if (userPassword.length < 6)
 
@@ -137,10 +139,6 @@ export const SignIn = () => {
     const secretKey = process.env.REACT_APP_SECRET_KEY ? process.env.REACT_APP_SECRET_KEY : '12345'
 
 
-    const encrypt = (plainText) => {
-        const cipherText = CryptoJS.AES.encrypt(plainText, secretKey).toString()
-        return cipherText
-    }
     const decrypt = (cipherText) => {
         const bytes = CryptoJS.AES.decrypt(cipherText, secretKey)
         const plainText = bytes.toString(CryptoJS.enc.Utf8)
@@ -168,8 +166,8 @@ export const SignIn = () => {
                     </div>
                     <div className='sinin_form_field'>
                         <div className='job_apply_field'>
-                            <label htmlFor='email' className='job_form_field'>Email or phone number</label>
-                            <input type='text' className='job_form_input' placeholder='Email or phone number'
+                            <label htmlFor='email' className='job_form_field'>Email</label>
+                            <input type='text' className='job_form_input' placeholder='Email'
                                 value={userEmail} onChange={(e) => setEmail(e.target.value)} onBlur={() => handleBlur('userEmail')} required />
                             {errors.userEmail && <p className="error-message">{errors.userEmail}</p>}
 

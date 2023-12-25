@@ -10,6 +10,8 @@ import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc } from "fir
 import { userAuth, userAuthWithGoogle, database } from "./firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import './styles/inputError.css'
+import * as CryptoJS from 'crypto-js'
+
 export const SignUp = () => {
     const navigate = useNavigate();
 
@@ -69,6 +71,12 @@ export const SignUp = () => {
             [field]: error || 'Invalid input',
         }));
     };
+    const secretKey = process.env.REACT_APP_SECRET_KEY ? process.env.REACT_APP_SECRET_KEY : '12345'
+
+    const encrypt = (plainText) => {
+        const cipherText = CryptoJS.AES.encrypt(plainText, secretKey).toString()
+        return cipherText
+    }
 
 
     const submitUserDetails = async (userEmail, userPassword) => {
@@ -80,7 +88,7 @@ export const SignUp = () => {
                 signInAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
                 uid: userEmail,
-                uPassword: userPassword,
+                uPassword: encrypt(userPassword),
                 firstName: firstName,
                 lastName: lastName
             });
@@ -177,8 +185,8 @@ export const SignUp = () => {
                             </div>
                         </div>
                         <div className='job_apply_field'>
-                            <label htmlFor='email' className='job_form_field'>Email or phone number</label>
-                            <input type='text' className='job_form_input' placeholder='Email or phone number'
+                            <label htmlFor='email' className='job_form_field'>Email</label>
+                            <input type='text' className='job_form_input' placeholder='Email'
                                 value={userEmail} onChange={(e) => setEmail(e.target.value)} onBlur={() => handleBlur('userEmail')} required />
                             {errors.userEmail && <p className="error-message">{errors.userEmail}</p>}
                         </div>
