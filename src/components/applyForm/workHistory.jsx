@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
-import { Card, Button, Container, Form } from 'react-bootstrap';
+import { Card, Button, Form } from 'react-bootstrap';
 import { applyFormCardNumberContext } from '../../Context';
-import { addMore, backArrowIcon, crossIcon, deleteIcon, dragIcon, orLineIcon, uploadIcon } from "../../assets/index"
+import { addMore, backArrowIcon } from "../../assets/index"
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 

@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react'
-import { addMore, backArrowIcon, crossIcon, deleteIcon, dragIcon, orLineIcon, uploadIcon } from "../../assets/index"
+import { addMore, backArrowIcon, deleteIcon } from "../../assets/index"
 import { applyFormCardNumberContext } from '../../Context';
-import { Card, Button, Container, Form } from 'react-bootstrap';
+import { Card, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, getDoc, Timestamp } from "firebase/firestore";
+import { collection, setDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { database } from "../../firebaseConfig";
 import Cookies from 'js-cookie';
 

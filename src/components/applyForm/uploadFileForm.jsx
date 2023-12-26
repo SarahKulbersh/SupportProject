@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react'
 import { applyFormCardNumberContext } from '../../Context'
-import { Card, Button, Container, Form } from 'react-bootstrap';
-import { addMore, backArrowIcon, crossIcon, deleteIcon, dragIcon, orLineIcon, uploadIcon } from "../../assets/index"
+import { Card, Container, Form } from 'react-bootstrap';
+import { backArrowIcon, crossIcon, dragIcon } from "../../assets/index"
 import { v4 as uuidv4 } from 'uuid';
-import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, getDoc, Timestamp } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp, updateDoc, getDoc } from "firebase/firestore";
 import { database, storage } from "../../firebaseConfig";
-import { ref, uploadBytes, getDownloadURL, getStorage, deleteObject } from "firebase/storage";
+import { ref, uploadBytes, deleteObject } from "firebase/storage";
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 

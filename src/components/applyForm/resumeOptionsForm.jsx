@@ -1,10 +1,10 @@
-import React, { useCallback, useContext, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, Container, Form } from 'react-bootstrap';
 import { uploadIcon, backArrowIcon, orLineIcon } from "../../assets/index"
 import { database } from "../../firebaseConfig";
 import { applyFormCardNumberContext } from '../../Context';
-import { collection, setDoc, doc, serverTimestamp, updateDoc, arrayUnion, getDoc, Timestamp } from "firebase/firestore";
+import { collection, setDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import Cookies from 'js-cookie';
 
 function ResumeOptionsForm() {

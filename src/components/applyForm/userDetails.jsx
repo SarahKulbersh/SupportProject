@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react'
-import { Card, Button, Container, Form } from 'react-bootstrap';
+import { Card, Form } from 'react-bootstrap';
 import { applyFormCardNumberContext } from '../../Context';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { addMore, backArrowIcon, crossIcon, deleteIcon, dragIcon, orLineIcon, uploadIcon } from "../../assets/index"
+import { backArrowIcon } from "../../assets/index"
 
 function UserDetails() {
     const navigate = useNavigate()
