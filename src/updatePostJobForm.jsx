@@ -70,8 +70,6 @@ export function UpdatePostJobForm({job, jobId}) {
     const updateJobPost = async (e) => {
         console.log(jobId)
         const userId = sessionStorage.getItem("userId");
-        console.log("userId", userId)
-
 
         const postingJobIdString = getCurrentDateTimeString() + '_' + userId;
 

@@ -1,6 +1,6 @@
 .navbar {
     display: flex;
-    padding: 30px 60px;
+    padding: 15px 60px;
     background: var(--light-color-100, #FFF);
     justify-content: space-between;
     align-items: center;
@@ -8,10 +8,14 @@
     width: 99vw;
     box-sizing: border-box;
     box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.24);
+    z-index: 100; /* Ensure it's above other elements */
+
 }
-.nav_about{
+
+.nav_about {
     margin-left: 70px;
 }
+
 .navbar>div {
     display: flex;
     align-items: center;
@@ -87,4 +91,22 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+}
+
+.btn-primary{
+    display: flex;
+    height: 40px;
+    padding: 9px 18px;
+    border-radius: 4px;
+    background: var(--primary-color-100, #2557A7) !important;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: var(--light-color-100, #FFF);
+    font-family: Raleway;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    border: none;
 }

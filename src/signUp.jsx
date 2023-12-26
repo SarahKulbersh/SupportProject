@@ -107,7 +107,7 @@ export const SignUp = () => {
             await createUserWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
                 submitUserDetails(userEmail, userPassword)
                 sessionStorage.setItem("userId", userEmail);
-                navigate(-1)
+                navigate(sessionStorage.getItem("locationBeforeSignIn"))
             });
         }
         catch (err) {
@@ -124,7 +124,7 @@ export const SignUp = () => {
             const firstName = userCredential.user.displayName.split(" ")[0];
             const lastName = userCredential.user.displayName.split(" ")[1];
             submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
-            navigate(-1)
+            navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
         }).catch((err) => {
 
@@ -133,7 +133,7 @@ export const SignUp = () => {
         });
     };
     const submitUserDetailsGoogleSignIn = async (userEmail, firstName, lastName) => {
-        console.log("firstName", firstName)
+
         try {
             await setDoc(doc(database, "person", userEmail), {
                 createdAt: serverTimestamp(),

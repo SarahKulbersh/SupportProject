@@ -5,11 +5,12 @@ import { database } from "./firebaseConfig";
 import { useNavigate } from 'react-router-dom';
 import { idJobToApplyContext } from './Context';
 import { storage } from "./firebaseConfig";
-import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, getStorage, deleteObject } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 import "./styles/jobApplyForm.css"
 import { addMore, backArrowIcon, crossIcon, deleteIcon, dragIcon, orLineIcon, uploadIcon } from "./assets/index"
-
+import Footer from './components/Footer';
+import NavBar from './components/NavBar';
 
 export function JobApplyForm() {
 
@@ -123,7 +124,7 @@ export function JobApplyForm() {
         }
     }
     //card 3 - file uploading
-    const [imgFile, setImageFile] = useState('');
+    const [resumeFile, setResumeFile] = useState('');
 
     async function submitUserFileDetails(fileName) {
 
@@ -142,19 +143,49 @@ export function JobApplyForm() {
             console.error("Error submitUserDetails:", error);
         }
     }
-    const uploadFile = async () => {
+    const uploadFile = async (e) => {
+
+        e.preventDefault()
+        const userId = sessionStorage.getItem("userId")
+
         const myId = uuidv4()
 
-        if (imgFile != null) {
-            // db ref
-            const refFIle = ref(storage, "resumes/" + imgFile.name + myId);
-            // uploading file bytes
-            await uploadBytes(refFIle, imgFile);
+        if (resumeFile != null) {
 
-            const fileName = imgFile.name + myId
-            await submitUserFileDetails(fileName)
-            // await updateIdentitiesUserApplies()
-            await addToApplicationsCollection()
+            const userDoc = doc(database, "person", userId);
+            const userSnap = await getDoc(userDoc);
+            const userData = userSnap.data();
+            if (userData.resumeFileName !== '') {
+
+                // Create a reference to the file to delete
+                const desertRef = ref(storage, `/resumes/${userData.resumeFileName}`);
+
+                // Delete the file
+                deleteObject(desertRef).then(() => {
+                    // File deleted successfully
+                }).catch((error) => {
+                    // Uh-oh, an error occurred!
+                });
+            }
+
+            // uploading file bytes
+            try {
+                const refFIle = ref(storage, "/resumes/" + resumeFile.name + myId);
+                // console.log(refFIle)
+                // console.log(resumeFile.size / 1024 / 1024 + "MB");
+                // console.log(resumeFile.type);
+                // console.log(resumeFile.name);
+                await uploadBytes(refFIle, resumeFile);
+                console.log()
+                const fileName = resumeFile.name + myId
+                await submitUserFileDetails(fileName)
+                // await updateIdentitiesUserApplies()
+                await addToApplicationsCollection()
+
+            } catch (err) {
+                console.log("error", err)
+            }
+
         }
     };
 
@@ -395,346 +426,349 @@ export function JobApplyForm() {
         const employeeId = extractEmailFromDateString(sessionStorage.getItem("jobId"));
         const postDate = extractDateTime(sessionStorage.getItem("jobId"))
         const userId = sessionStorage.getItem("userId");
-        const applicationDocId = employeeId +"_#_" + postDate+"_#_"+userId;
+        const applicationDocId = employeeId + "_#_" + postDate + "_#_" + userId;
 
         try {
             await setDoc(doc(database, "jobApplications", applicationDocId), {
                 createdAt: serverTimestamp(),
                 firstName: firstName,
                 lastName: lastName,
-                jobTitle: sessionStorage.getItem("jobTitle"), 
-        });
+                jobTitle: sessionStorage.getItem("jobTitle"),
+            });
         } catch (error) {
             console.error("Error submitUserDetails:", error);
         }
     }
 
     return (
+        <>
+            <NavBar />
+            <Container className='job_apply_form'>
 
-        <Container className='job_apply_form'>
+                {cardNumber === 1 &&
+                    <Card>
+                        <Card.Body className='job_apply_form_body'>
+                            <SaveAndExit />
 
-            {cardNumber === 1 &&
-                <Card>
-                    <Card.Body className='job_apply_form_body'>
-                        <SaveAndExit />
-
-                        <Form className='job_form_apply_fields'>
-                            <h4>Add your contact information</h4>
-                            <div className='job_apply_field'>
-                                <Form.Label className='job_form_field'>First name</Form.Label>
-                                <Form.Control className='job_form_input' type='text' onChange={(e) => setFirstName(e.target.value)} onBlur={() => handleBlur('firstName')} required value={firstName} />
-                                {errors.firstName && <p className="error-message">{errors.firstName}</p>}
-                            </div>
-                            <div className='job_apply_field'>
-                                <Form.Label className='job_form_field'>Last name</Form.Label>
-                                <Form.Control className='job_form_input' type='text' onChange={(e) => setLastName(e.target.value)} onBlur={() => handleBlur('lastName')} required value={lastName} />
-                                {errors.lastName && <p className="error-message">{errors.lastName}</p>}
-                            </div>
-                            <div className='job_apply_field'>
-                                <label htmlFor="email" className='job_form_field'>Email</label>
-                                <input type="email" className='job_form_input' id="email" onChange={(e) => setEmail(e.target.value)} defaultValue={userId} readOnly />
-                            </div>
-                            <div className='job_apply_field'>
-                                <Form.Label>City (optional)</Form.Label>
-                                <Form.Control type='text' onChange={(e) => setCity(e.target.value)} onBlur={() => handleBlur('city')} />
-                                {errors.city && <p className="error-message">{errors.city}</p>}
-                            </div>
-                            <div className='job_apply_field'>
-                                <Form.Label htmlFor="phone" className='job_form_field' onChange={(e) => setPhone(e.target.value)} required value={phone} onBlur={() => handleBlur('phone')}>Phone number</Form.Label>
-                                <div className='job_form_phone_input'>
-                                    <Form.Select size="lg" className='job_form_phone_code' onChange={(e) => setPhoneAreaCode(e.target.value)} required value={phoneAreaCode}>
-                                        <option>+1</option>
-                                    </Form.Select>
-                                    <Form.Control className='job_form_input' type='text' id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} onBlur={() => handleBlur('phone')} />
+                            <Form className='job_form_apply_fields'>
+                                <h4>Add your contact information</h4>
+                                <div className='job_apply_field'>
+                                    <Form.Label className='job_form_field'>First name</Form.Label>
+                                    <Form.Control className='job_form_input' type='text' onChange={(e) => setFirstName(e.target.value)} onBlur={() => handleBlur('firstName')} required value={firstName} />
+                                    {errors.firstName && <p className="error-message">{errors.firstName}</p>}
                                 </div>
-                                {errors.phone && <p className="error-message">{errors.phone}</p>}
-                            </div>
-                            <button className='job_form_submit' type='button' onClick={() => {
-
-                                // Validate all fields before submission
-                                for (const field in validation) {
-                                    handleBlur(field);
-                                }
-                                if (firstName === '' || lastName === '' || phone === '') {
-                                    return; // Do not proceed with signUp function if any required field is empty
-                                }
-
-                                if (errorValues.every(value => value === true)) {
-                                    setCardNumber(2);
-                                }
-                            }}>Continue</button>
-                        </Form>
-                    </Card.Body>
-                </Card>
-            }
-            {cardNumber === 2 &&
-                <Card>
-                    <Card.Body className='job_apply_form_body'>
-                        <SaveAndExit changeTo={1} />
-
-
-                        <Form className='job_form_apply_fields'>
-                            <h4>Add a resume for the employer</h4>
-
-                            <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(1)} style={resumeOption === 1 ? { border: "navy 1px solid" } : null}>
-                                <img src={uploadIcon} className='uplaod_icon' alt="" />
-                                <div>
-                                    <h4 className='job_form_head_field'>Upload a resume</h4>
-                                    <p className='job_form_upload_desc'>Accepted file types: PDF, DOCX</p>
+                                <div className='job_apply_field'>
+                                    <Form.Label className='job_form_field'>Last name</Form.Label>
+                                    <Form.Control className='job_form_input' type='text' onChange={(e) => setLastName(e.target.value)} onBlur={() => handleBlur('lastName')} required value={lastName} />
+                                    {errors.lastName && <p className="error-message">{errors.lastName}</p>}
                                 </div>
-                            </Container>
-                            <img src={orLineIcon} alt="" />
-                            <Container className='job_apply_upload_box' type='button' onClick={(e) => setResumeOption(2)} style={resumeOption === 2 ? { border: "navy 1px solid" } : null}>
-                                <img src={uploadIcon} className='uplaod_icon' alt="" />
-                                <div>
-                                    <p className='job_form_upload_desc_rec'>Recommended</p>
-                                    <h4 className='job_form_head_field'>Build a Logoipsum Resume</h4>
-                                    <p className='job_form_upload_desc'>We’ll guide you through it, there are only a few steps</p>
+                                <div className='job_apply_field'>
+                                    <label htmlFor="email" className='job_form_field'>Email</label>
+                                    <input type="email" className='job_form_input' id="email" onChange={(e) => setEmail(e.target.value)} defaultValue={userId} readOnly />
                                 </div>
-                            </Container>
-                            <img src={orLineIcon} alt="" />
-                            <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(3)} style={resumeOption === 3 ? { border: "navy 1px solid" } : null}>
-                                <img src={uploadIcon} className='uplaod_icon' alt="" />
-                                <div>
-                                    <h4 className='job_form_head_field'>Continue without a resume</h4>
-                                    <p className='job_form_upload_desc'>We highly recommend that you provide a resume!</p>
+                                <div className='job_apply_field'>
+                                    <Form.Label>City (optional)</Form.Label>
+                                    <Form.Control type='text' onChange={(e) => setCity(e.target.value)} onBlur={() => handleBlur('city')} />
+                                    {errors.city && <p className="error-message">{errors.city}</p>}
                                 </div>
-                            </Container>
-                            <br />
-                            <button className='job_form_submit' onClick={(e) => handleContinueBtn(e)}>Continue</button>
-
-                        </Form>
-                    </Card.Body>
-                </Card>
-            }
-            {cardNumber === 3 &&
-                <Card>
-                    <Card.Body className='job_apply_form_body'>
-                        <Form className='job_form_apply_fields'>
-                            <SaveAndExit changeTo={2} />
-
-                            <div className='job_form_resume_head'>
-                                <h5>Upload a resume</h5>
-                                <img src={crossIcon} alt="" />
-                            </div>
-                            <label htmlFor='resume_file'>
-                                <h6 className='job_form_resume_accept'>Acceptable files: docx,pdf</h6>
-                                <Container className='job_form_resume_box'>
-                                    <img src={dragIcon} alt="" />
-                                    <h6>Drag and drop here, or</h6>
-                                    <h6>Select a file</h6>
-                                </Container>
-                                {/* <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" /> */}
-
-                                <input type='file' placeholder='' id='resume_file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
-                            </label>
-                            <div className='job_form_resume_upload_btns'>
-                                <button className='job_form_resume_canel_btn'>Cancel</button>
-                                <button className='job_form_resume_upload_btn' onClick={uploadFile}>Upload</button>
-                                {/* <Button onClick={uploadFile}>Upload</Button> */}
-                            </div>
-                            <div>
-                                <p>uploading resume file</p>
-                                <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
-                                <button onClick={uploadFile} >upload file</button>
-                            </div>
-
-                        </Form>
-                    </Card.Body>
-                </Card>
-            }
-            {cardNumber === 4 &&
-                <Card>
-                    <Card.Body className='job_apply_form_body'>
-                        <Form className='job_form_apply_fields'>
-                            <SaveAndExit changeTo={2} />
-                            <div>
-                                <p className='job_form_upload_desc'>Build your resume (1 of 4)</p>
-                                <p className='job_form_field'>Do you want to add any education details?</p>
-                            </div>
-                            {education?.map((e, index) => (
-                                <div key={index}>
-                                    <Form.Label className='job_form_field'>Level of education *</Form.Label>
-                                    <Form.Control className='job_form_input' type='text' name='educationLevel' required value={e.educationLevel} onChange={(e) => handleEducationChange(e, index)} />
-                                    <Form.Label className='job_form_field'>Field of study</Form.Label>
-                                    <Form.Control className='job_form_input' type='text' name='studyName' required value={e.studyField} onChange={(e) => handleEducationChange(e, index)} />
-                                    <Form.Label className='job_form_field'>Name of school</Form.Label>
-                                    <Form.Control className='job_form_input' type='text' name='schoolName' required value={e.schoolName} onChange={(e) => handleEducationChange(e, index)} />
-
-                                    <Form.Text className='job_form_field'>Time period</Form.Text>
-                                    <Form.Group className='job_edu_form_date'>
-                                        <Form.Label>From</Form.Label>
-                                        <div>
-                                            <Form.Select name='timeOfStudyFromMonth' value={e.timeOfStudyFromMonth} onChange={(e) => handleEducationChange(e, index)}>
-                                                <option>Month</option>
-                                                {[...new Array(12).keys()].map((i) => (
-                                                    <option key={i + 1} value={i + 1}>
-                                                        {i + 1}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                            <Form.Select name='timeOfStudyFromYear' value={e.timeOfStudyFromYear} onChange={(e) => handleEducationChange(e, index)}>
-                                                <option>Year</option>
-                                                {years.map((year) => (
-                                                    <option key={year} value={year}>
-                                                        {year}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </div>
-                                    </Form.Group>
-                                    <Form.Group className='job_edu_form_date'>
-                                        <Form.Label>To</Form.Label>
-                                        <div>
-                                            <Form.Select name='timeOfStudyToMonth' value={e.timeOfStudyToMonth} onChange={(e) => handleEducationChange(e, index)}>
-                                                <option>Month</option>
-                                                {[...new Array(12).keys()].map((i) => (
-                                                    <option key={i + 1} value={i + 1}>
-                                                        {i + 1}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                            <Form.Select name='timeOfStudyToYear' value={e.timeOfStudyToYear} onChange={(e) => handleEducationChange(e, index)}>
-                                                <option>Year</option>
-                                                {years.map((year) => (
-                                                    <option key={year} value={year}>
-                                                        {year}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </div>
-                                    </Form.Group>
-                                    {index === education.length - 1 && (
-                                        <div className='job_form_add' onClick={() => handleAddEducationInput()}>
-                                            <img src={addMore} alt="" />
-                                            Add more
-                                        </div>
-
-                                    )}
-                                </div>
-                            ))}
-
-                            <Button onClick={(e) => setCardNumber(5)} className='job_form_submit skill_btn'>Save and continue</Button>
-
-                        </Form>
-                    </Card.Body>
-                </Card>
-            }
-            {cardNumber === 5 &&
-                <Card>
-                    <Card.Body className='job_apply_form_body'>
-                        <Form className='job_form_apply_fields'>
-                            <SaveAndExit changeTo={4} />
-                            <Form.Text>Do you want to add work history?</Form.Text>
-                            {jobs?.map((job, index) => (
-                                <div key={index}>
-                                    <Form.Group>
-                                        <Form.Label className='job_form_field'>Job title *</Form.Label>
-                                        <Form.Control className='job_form_input' type='text' name='title' value={job.title} required onChange={(e) => handleWorkHistoryChange(e, index)} />
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label className='job_form_field'>Company</Form.Label>
-                                        <Form.Control className='job_form_input' type='text' name='company' value={job.company} required onChange={(e) => handleWorkHistoryChange(e, index)} />
-                                    </Form.Group>
-
-                                    <Form.Text className='job_form_field'>Time period</Form.Text>
-                                    <Form.Group className='job_edu_form_date'>
-                                        <Form.Label>From</Form.Label>
-                                        <div>
-                                            <Form.Select name='timeOfWorkFromMonth' value={job.timeOfWorkFromMonth} onChange={(e) => handleWorkHistoryChange(e, index)}>
-                                                <option>Month</option>
-                                                {[...new Array(12).keys()].map((i) => (
-                                                    <option key={i + 1} value={i + 1}>
-                                                        {i + 1}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                            <Form.Select name='timeOfWorkFromYear' value={job.timeOfWorkFromYear} onChange={(e) => handleWorkHistoryChange(e, index)}>
-                                                <option>Year</option>
-                                                {years.map((year) => (
-                                                    <option key={year} value={year}>
-                                                        {year}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </div>
-                                    </Form.Group>
-                                    <Form.Group className='job_edu_form_date'>
-                                        <Form.Label>To</Form.Label>
-                                        <div>
-                                            <Form.Select name='timeOfWorkToMonth' value={job.timeOfWorkToMonth} onChange={(e) => handleWorkHistoryChange(e, index)}>
-                                                <option>Month</option>
-                                                {[...new Array(12).keys()].map((i) => (
-                                                    <option key={i + 1} value={i + 1}>
-                                                        {i + 1}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                            <Form.Select name='timeOfWorkToYear' value={job.timeOfWorkToYear} onChange={(e) => handleWorkHistoryChange(e, index)}>
-                                                <option>Year</option>
-                                                {years.map((year) => (
-                                                    <option key={year} value={year}>
-                                                        {year}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
-                                        </div>
-                                    </Form.Group>
-                                    <div className='job_form_desc_box'>
-                                        <Form.Label>Description</Form.Label>
-                                        <Form.Text>Describe your position and any significant accomplishments</Form.Text>
+                                <div className='job_apply_field'>
+                                    <Form.Label htmlFor="phone" className='job_form_field' onChange={(e) => setPhone(e.target.value)} required value={phone} onBlur={() => handleBlur('phone')}>Phone number</Form.Label>
+                                    <div className='job_form_phone_input'>
+                                        <Form.Select size="lg" className='job_form_phone_code' onChange={(e) => setPhoneAreaCode(e.target.value)} required value={phoneAreaCode}>
+                                            <option>+1</option>
+                                        </Form.Select>
+                                        <Form.Control className='job_form_input' type='text' id="phone" name="phone" onChange={(e) => setPhone(e.target.value)} value={phone} onBlur={() => handleBlur('phone')} />
                                     </div>
-                                    <textarea
-                                        rows="5"
-                                        name='description'
-                                        value={job.description}
-                                        onChange={(e) => handleWorkHistoryChange(e, index)}
-                                    />
-                                    {index === jobs.length - 1 && (
-                                        <div className='job_form_add' onClick={() => handleAddWorkHistoryInput()}>
-                                            <img src={addMore} alt="" />
-                                            Add more
+                                    {errors.phone && <p className="error-message">{errors.phone}</p>}
+                                </div>
+                                <button className='job_form_submit' type='button' onClick={() => {
+
+                                    // Validate all fields before submission
+                                    for (const field in validation) {
+                                        handleBlur(field);
+                                    }
+                                    if (firstName === '' || lastName === '' || phone === '') {
+                                        return; // Do not proceed with signUp function if any required field is empty
+                                    }
+
+                                    if (errorValues.every(value => value === true)) {
+                                        setCardNumber(2);
+                                    }
+                                }}>Continue</button>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                }
+                {cardNumber === 2 &&
+                    <Card>
+                        <Card.Body className='job_apply_form_body'>
+                            <SaveAndExit changeTo={1} />
+
+
+                            <Form className='job_form_apply_fields'>
+                                <h4>Add a resume for the employer</h4>
+
+                                <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(1)} style={resumeOption === 1 ? { border: "navy 1px solid" } : null}>
+                                    <img src={uploadIcon} className='uplaod_icon' alt="" />
+                                    <div>
+                                        <h4 className='job_form_head_field'>Upload a resume</h4>
+                                        <p className='job_form_upload_desc'>Accepted file types: PDF, DOCX</p>
+                                    </div>
+                                </Container>
+                                <img src={orLineIcon} alt="" />
+                                <Container className='job_apply_upload_box' type='button' onClick={(e) => setResumeOption(2)} style={resumeOption === 2 ? { border: "navy 1px solid" } : null}>
+                                    <img src={uploadIcon} className='uplaod_icon' alt="" />
+                                    <div>
+                                        <p className='job_form_upload_desc_rec'>Recommended</p>
+                                        <h4 className='job_form_head_field'>Build a Logoipsum Resume</h4>
+                                        <p className='job_form_upload_desc'>We’ll guide you through it, there are only a few steps</p>
+                                    </div>
+                                </Container>
+                                <img src={orLineIcon} alt="" />
+                                <Container type='button' className='job_apply_upload_box' onClick={(e) => setResumeOption(3)} style={resumeOption === 3 ? { border: "navy 1px solid" } : null}>
+                                    <img src={uploadIcon} className='uplaod_icon' alt="" />
+                                    <div>
+                                        <h4 className='job_form_head_field'>Continue without a resume</h4>
+                                        <p className='job_form_upload_desc'>We highly recommend that you provide a resume!</p>
+                                    </div>
+                                </Container>
+                                <br />
+                                <button className='job_form_submit' onClick={(e) => handleContinueBtn(e)}>Continue</button>
+
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                }
+                {cardNumber === 3 &&
+                    <Card>
+                        <Card.Body className='job_apply_form_body'>
+                            <Form className='job_form_apply_fields'>
+                                <SaveAndExit changeTo={2} />
+
+                                <div className='job_form_resume_head'>
+                                    <h5>Upload a resume</h5>
+                                    <img src={crossIcon} alt="" />
+                                </div>
+                                <label htmlFor='resume_file'>
+                                    <h6 className='job_form_resume_accept'>Acceptable files: docx,pdf</h6>
+                                    <Container className='job_form_resume_box'>
+                                        <img src={dragIcon} alt="" />
+                                        <h6>Drag and drop here, or</h6>
+                                        <h6>Select a file</h6>
+                                    </Container>
+                                    {/* <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" /> */}
+
+                                    <input type='file' placeholder='' id='resume_file' onChange={(e) => { setResumeFile(e.target.files[0]) }} accept=".docx,.pdf" />
+                                </label>
+                                <div className='job_form_resume_upload_btns'>
+                                    <button className='job_form_resume_canel_btn'>Cancel</button>
+                                    <button className='job_form_resume_upload_btn' onClick={(e) => { uploadFile(e) }}>Upload</button>
+                                    {/* <Button onClick={uploadFile}>Upload</Button> */}
+                                </div>
+                                {/* <div>
+                                    <p>uploading resume file</p>
+                                    <input type='file' onChange={(e) => { setImageFile(e.target.files[0]) }} accept=".docx,.pdf" />
+                                    <button onClick={uploadFile} >upload file</button>
+                                </div> */}
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                }
+                {cardNumber === 4 &&
+                    <Card>
+                        <Card.Body className='job_apply_form_body'>
+                            <Form className='job_form_apply_fields'>
+                                <SaveAndExit changeTo={2} />
+                                <div>
+                                    <p className='job_form_upload_desc'>Build your resume (1 of 4)</p>
+                                    <p className='job_form_field'>Do you want to add any education details?</p>
+                                </div>
+                                {education?.map((e, index) => (
+                                    <div key={index}>
+                                        <Form.Label className='job_form_field'>Level of education *</Form.Label>
+                                        <Form.Control className='job_form_input' type='text' name='educationLevel' required value={e.educationLevel} onChange={(e) => handleEducationChange(e, index)} />
+                                        <Form.Label className='job_form_field'>Field of study</Form.Label>
+                                        <Form.Control className='job_form_input' type='text' name='studyName' required value={e.studyField} onChange={(e) => handleEducationChange(e, index)} />
+                                        <Form.Label className='job_form_field'>Name of school</Form.Label>
+                                        <Form.Control className='job_form_input' type='text' name='schoolName' required value={e.schoolName} onChange={(e) => handleEducationChange(e, index)} />
+
+                                        <Form.Text className='job_form_field'>Time period</Form.Text>
+                                        <Form.Group className='job_edu_form_date'>
+                                            <Form.Label>From</Form.Label>
+                                            <div>
+                                                <Form.Select name='timeOfStudyFromMonth' value={e.timeOfStudyFromMonth} onChange={(e) => handleEducationChange(e, index)}>
+                                                    <option>Month</option>
+                                                    {[...new Array(12).keys()].map((i) => (
+                                                        <option key={i + 1} value={i + 1}>
+                                                            {i + 1}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                                <Form.Select name='timeOfStudyFromYear' value={e.timeOfStudyFromYear} onChange={(e) => handleEducationChange(e, index)}>
+                                                    <option>Year</option>
+                                                    {years.map((year) => (
+                                                        <option key={year} value={year}>
+                                                            {year}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </div>
+                                        </Form.Group>
+                                        <Form.Group className='job_edu_form_date'>
+                                            <Form.Label>To</Form.Label>
+                                            <div>
+                                                <Form.Select name='timeOfStudyToMonth' value={e.timeOfStudyToMonth} onChange={(e) => handleEducationChange(e, index)}>
+                                                    <option>Month</option>
+                                                    {[...new Array(12).keys()].map((i) => (
+                                                        <option key={i + 1} value={i + 1}>
+                                                            {i + 1}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                                <Form.Select name='timeOfStudyToYear' value={e.timeOfStudyToYear} onChange={(e) => handleEducationChange(e, index)}>
+                                                    <option>Year</option>
+                                                    {years.map((year) => (
+                                                        <option key={year} value={year}>
+                                                            {year}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </div>
+                                        </Form.Group>
+                                        <br/>
+                                        {index === education.length - 1 && (
+                                            <div className='job_form_add' onClick={() => handleAddEducationInput()}>
+                                                <img src={addMore} alt="" />
+                                                Add more
+                                            </div>
+
+                                        )}
+                                    </div>
+                                ))}
+
+                                <Button onClick={(e) => setCardNumber(5)} className='job_form_submit skill_btn'>Save and continue</Button>
+
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                }
+                {cardNumber === 5 &&
+                    <Card>
+                        <Card.Body className='job_apply_form_body'>
+                            <Form className='job_form_apply_fields'>
+                                <SaveAndExit changeTo={4} />
+                                <Form.Text>Do you want to add work history?</Form.Text>
+                                {jobs?.map((job, index) => (
+                                    <div key={index}>
+                                        <Form.Group>
+                                            <Form.Label className='job_form_field'>Job title *</Form.Label>
+                                            <Form.Control className='job_form_input' type='text' name='title' value={job.title} required onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                        </Form.Group>
+                                        <Form.Group>
+                                            <Form.Label className='job_form_field'>Company</Form.Label>
+                                            <Form.Control className='job_form_input' type='text' name='company' value={job.company} required onChange={(e) => handleWorkHistoryChange(e, index)} />
+                                        </Form.Group>
+
+                                        <Form.Text className='job_form_field'>Time period</Form.Text>
+                                        <Form.Group className='job_edu_form_date'>
+                                            <Form.Label>From</Form.Label>
+                                            <div>
+                                                <Form.Select name='timeOfWorkFromMonth' value={job.timeOfWorkFromMonth} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                    <option>Month</option>
+                                                    {[...new Array(12).keys()].map((i) => (
+                                                        <option key={i + 1} value={i + 1}>
+                                                            {i + 1}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                                <Form.Select name='timeOfWorkFromYear' value={job.timeOfWorkFromYear} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                    <option>Year</option>
+                                                    {years.map((year) => (
+                                                        <option key={year} value={year}>
+                                                            {year}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </div>
+                                        </Form.Group>
+                                        <Form.Group className='job_edu_form_date'>
+                                            <Form.Label>To</Form.Label>
+                                            <div>
+                                                <Form.Select name='timeOfWorkToMonth' value={job.timeOfWorkToMonth} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                    <option>Month</option>
+                                                    {[...new Array(12).keys()].map((i) => (
+                                                        <option key={i + 1} value={i + 1}>
+                                                            {i + 1}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                                <Form.Select name='timeOfWorkToYear' value={job.timeOfWorkToYear} onChange={(e) => handleWorkHistoryChange(e, index)}>
+                                                    <option>Year</option>
+                                                    {years.map((year) => (
+                                                        <option key={year} value={year}>
+                                                            {year}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </div>
+                                        </Form.Group>
+                                        <div className='job_form_desc_box'>
+                                            <Form.Label>Description</Form.Label>
+                                            <Form.Text>Describe your position and any significant accomplishments</Form.Text>
                                         </div>
-                                    )}
+                                        <textarea
+                                            rows="5"
+                                            name='description'
+                                            value={job.description}
+                                            onChange={(e) => handleWorkHistoryChange(e, index)}
+                                        />
+                                        {index === jobs.length - 1 && (
+                                            <div className='job_form_add' onClick={() => handleAddWorkHistoryInput()}>
+                                                <img src={addMore} alt="" />
+                                                Add more
+                                            </div>
+                                        )}
+
+                                    </div>
+                                ))}
+                                <div className='job_form_desc_btn_box'>
+
+                                    <Button className='job_form_submit' onClick={(e) => setCardNumber(6)}>Save and continue</Button>
 
                                 </div>
-                            ))}
-                            <div className='job_form_desc_btn_box'>
 
-                                <Button className='job_form_submit' onClick={(e) => setCardNumber(6)}>Save and continue</Button>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                }
+                {cardNumber === 6 &&
+                    <Card>
+                        <Card.Body className='job_apply_form_body'>
+                            <SaveAndExit changeTo={5} />
 
-                            </div>
-
-                        </Form>
-                    </Card.Body>
-                </Card>
-            }
-            {cardNumber === 6 &&
-                <Card>
-                    <Card.Body className='job_apply_form_body'>
-                        <SaveAndExit changeTo={5} />
-
-                        <Form className='job_form_apply_fields' >
-                            <div>
-                                <p className='job_form_upload_desc'>Build your resume (3 of 4)</p>
-                                <label htmlFor="phone">Do you want to share some of your skills?</label>
-                            </div>
-                            <Form.Text>we recommend adding at least 6 skills</Form.Text>
-                            <div className='job_form_field_box'>
-                                <input type="text" class="form-control" placeholder='Add a skill' value={inputValue} onChange={handleSkillInputChange} />
-                                <img src={addMore} alt="" className='add_skill_img' onClick={addSkill} />
-                            </div>
-                            {skills?.map((skill, index) => (
-                                <div className='job_form_field_dlt_box'>
-                                    <input className='job_form_input' type="text" value={skill} />
-                                    <img src={deleteIcon} alt="" onClick={() => { removeSkill(index) }} />
+                            <Form className='job_form_apply_fields' >
+                                <div>
+                                    <p className='job_form_upload_desc'>Build your resume (3 of 4)</p>
+                                    <label htmlFor="phone">Do you want to share some of your skills?</label>
                                 </div>
-                            ))}
-                            <Button className='job_form_submit skill_btn' onClick={submitApply}>Save and continue</Button>
-                        </Form>
-                    </Card.Body>
-                </Card>
-            }
-        </Container>
+                                <Form.Text>we recommend adding at least 6 skills</Form.Text>
+                                <div className='job_form_field_box'>
+                                    <input type="text" class="form-control" placeholder='Add a skill' value={inputValue} onChange={handleSkillInputChange} />
+                                    <img src={addMore} alt="" className='add_skill_img' onClick={addSkill} />
+                                </div>
+                                {skills?.map((skill, index) => (
+                                    <div className='job_form_field_dlt_box'>
+                                        <input className='job_form_input' type="text" value={skill} />
+                                        <img src={deleteIcon} alt="" onClick={() => { removeSkill(index) }} />
+                                    </div>
+                                ))}
+                                <Button className='job_form_submit skill_btn' onClick={submitApply}>Save and continue</Button>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                }
+            </Container>
+            <Footer />
+        </>
     )
 }

@@ -33,6 +33,12 @@
     gap: 20px;
 }
 
+.recent_job_card:hover{
+    border: 2px solid var(--text-color-15, #2557A7);
+    transition: border 0.1s ease-in-out;
+}
+
+
 .recent_job_box_1 {
     display: flex;
     width: 100%;

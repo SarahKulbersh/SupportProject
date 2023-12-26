@@ -1,7 +1,7 @@
 import React from 'react'
 import { useContext, useEffect } from 'react'
 import { JobContext, EstPreviewContext } from './Context'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import "./styles/jobResults.css"
 import { applyIcon } from './assets'
 import parse from 'html-react-parser';
@@ -10,6 +10,7 @@ export default function JobDetails() {
   const { estPreview, setEstPreview } = useContext(EstPreviewContext)
   const { job, setJob } = useContext(JobContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const userId = sessionStorage.getItem("userId") ?? null;
 
 // depending if the user is viewing the jobs in EST or IST
@@ -40,11 +41,10 @@ export default function JobDetails() {
   }
   function handleApply(jobId, jobTitle) {
     sessionStorage.setItem("jobId", jobId)
-    console.log("jobId", sessionStorage.getItem("jobId"))
     sessionStorage.setItem("jobTitle", jobTitle)
-    console.log(jobId)
-    console.log("userId", userId)
+
     if (sessionStorage.getItem("userId") === null) {
+      sessionStorage.setItem("locationBeforeSignIn", location.pathname )
       navigate('/signin')
     }
     else {
@@ -58,7 +58,6 @@ export default function JobDetails() {
     <div className='job_result_cnt'>
     <h4>{job.jobTitle}</h4>
     <button className='job_result_btn' onClick={() => handleApply(job.postingJobId, job.jobTitle)}>Apply <img src={applyIcon} alt=""/></button>
-    {/* <h5>Job type</h5> */}
     <div className='job_result_tags'>
       <div>Full Time</div>
       <div>{job.startedTimeFrom && job.endedTimeIn ? (

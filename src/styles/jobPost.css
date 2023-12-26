@@ -67,3 +67,7 @@
     border: 1px solid var(--Text-Color-60, #6D7685);
     width: fit-content;
 }
+
+.ql-container.ql-snow{
+    height: 400px;
+}

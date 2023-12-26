@@ -32,7 +32,7 @@ export const Jobs = () => {
     }
 
     const handleDelete = async (jobId) => {
-        console.log("delete")
+
         const userId = sessionStorage.getItem("userId")
         const postingJobsRef = collection(database, `person/${userId}/postingJobs`);
         const jobDoc = await doc(postingJobsRef, jobId);
@@ -63,14 +63,13 @@ export const Jobs = () => {
 
         const querySnapshot = await getDocs(collection(database, "jobApplications"));
         querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
+
             if (doc.id.includes(`${userId}_#_${postDate}_#_`))
             {
                 arrayDocs.push(doc.id)
             }
             console.log(doc.id, " => ", doc.data());
         });
-        console.log(arrayDocs.length)
 
         arrayDocs.map(docId => {
             deleteDoc(doc(database, "jobApplications", docId));

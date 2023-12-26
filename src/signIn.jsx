@@ -61,7 +61,8 @@ export const SignIn = () => {
             const firstName = userCredential.user.displayName.split(" ")[0];
             const lastName = userCredential.user.displayName.split(" ")[1];
             submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
-            navigate(-1)
+            navigate(sessionStorage.getItem("locationBeforeSignIn"))
+
 
         }).catch((err) => {
 
@@ -105,13 +106,14 @@ export const SignIn = () => {
                     else {
                         updatePassword(userEmail, userPassword)
                         sessionStorage.setItem("userId", userEmail);
-                        navigate(-1)
+                        navigate(sessionStorage.getItem("locationBeforeSignIn"))
+
                     }
                 }
                 else if (userPassword === decryptedPassword) {
                     const userCredential = await signInWithEmailAndPassword(userAuth, userEmail, userPassword);
                     sessionStorage.setItem("userId", userEmail);
-                    navigate(-1)
+                    navigate(sessionStorage.getItem("locationBeforeSignIn"))
                 } else {
                     alert("Invalid password");
                 }

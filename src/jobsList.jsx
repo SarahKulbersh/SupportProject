@@ -30,11 +30,9 @@ export default function JobsList() {
   useEffect(() => {
     async function fetchJobs() {
       const fetchedJobs = await searchJobs(searchTerm);
-      console.log("fetchedJobs", fetchedJobs)
+
       setJobs(fetchedJobs)
       setEstPreview(false)
-      console.log(estPreview)
-
     }
     fetchJobs();
   }, [searchTerm]);
@@ -77,32 +75,34 @@ export default function JobsList() {
 
   return (
     <>
-        <NavBar />
-        <div className='job_results'>
-          <SearchBox />
-          {jobs.length > 0 && (
-            <>
-              <div>
-                <div className='letssupport'>Show me job times in</div>
-                <div className='job_result_zone'>
-                  <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === false ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
-                  <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === true ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
-                </div>
+      <NavBar />
+      <div className='job_results'>
+        <SearchBox />
+        {jobs.length > 0 && (
+          <>
+            <div>
+              <div className='letssupport'>Show me job times in</div>
+              <div className='job_result_zone'>
+                <div className='job_result_zone_est' style={{ borderBottomColor: estPreview === false ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("est")}>Eastern Standard Time (EST)</div>
+                <div className='job_result_zone_ist' style={{ borderBottomColor: estPreview === true ? "#DADDE0" : "#2557A7" }} onClick={() => handleTimePreview("ist")}>Israel Standard Time (IST)</div>
               </div>
+            </div>
 
-              <div className='job_result_box'>
+            <div className='job_result_box'>
 
-                <div className='recent_job_list'>
-                  <JobCard postingJobsData={jobs} />
-                </div>
-                <JobDetails />
-              </div >
-            </>
-          )}
-          {jobs.length === 0 && <p className="no-jobs-message">No jobs found!</p>}
+              <div className='recent_job_list'>
+                <JobCard postingJobsData={jobs} />
+              </div>
+              <div style={{position: "sticky"}}>
+                <JobDetails/>
+              </div>
+            </div >
+          </>
+        )}
+        {jobs.length === 0 && <p className="no-jobs-message">No jobs found!</p>}
 
-        </div>
-        <Footer />
+      </div>
+      <Footer />
     </>
   )
 }

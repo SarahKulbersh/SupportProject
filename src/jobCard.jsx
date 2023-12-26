@@ -1,43 +1,73 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, {  useContext, useEffect, useState } from 'react'
 import { JobContext, EstPreviewContext } from './Context';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import "./styles/recent_jobs.css";
 import { Timestamp } from 'firebase/firestore';
+import JobDetails from './jobDetails';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import parse from 'html-react-parser';
 
 export default function JobCard({ postingJobsData }) {
+  function handleApply() {
+    const jobId = job.postingJobId
+    const jobTitle = job.jobTitle
+    sessionStorage.setItem("jobId", jobId)
+    sessionStorage.setItem("jobTitle", jobTitle)
+    if (sessionStorage.getItem("userId") === null) {
+        sessionStorage.setItem("locationBeforeSignIn", location.pathname)
+        navigate('/signin')
+    }
+    else {
+        navigate('/apply')
+    }
+
+}
+
+  const handleClose = () => setShowModal(false);
+  const handleShow = () => setShowModal(true);
+
+  const location = useLocation()
 
   const navigate = useNavigate();
 
   const { estPreview, setEstPreview } = useContext(EstPreviewContext)
   const userId = sessionStorage.getItem("userId") ?? null;
   const { job, setJob } = useContext(JobContext);
-  const [hasData, setHasData] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (postingJobsData && postingJobsData.length > 0) {
-      setHasData(true);
+      setJob(postingJobsData[0]);
     }
   }, []);
 
-  useEffect(() => {
-    if (hasData && !job && postingJobsData) {
-      setJob(postingJobsData[0]);
-    }
-  }, [hasData, job, postingJobsData]);
-
-  useEffect(() => {
-
-    if (!job && postingJobsData) {
-      setJob(postingJobsData[0]);
-    }
-  }, [postingJobsData])
-
   const openJob = (job) => {
     setJob(job);
+    console.log(job)
+    if (location.pathname === '/') {
+      handleShow()
   };
-// depending if the user is viewing the jobs in EST or IST
+  
+  // time comes from the database like this "20:00 PM" => "20:00"
+  function convertTo24HourFormat(timeString) {
+    const [time, modifier] = timeString.split(" ");
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    return `${hours}:${minutes}`;
+  }
+  // depending if the user is viewing the jobs in EST or IST
   function convertTime(timeString, isEST) {
-    const [hours, minutes] = timeString.split(":");
+    const timeStr = convertTo24HourFormat(timeString)
+    const [hours, minutes] = timeStr.split(":");
     const timeObj = new Date();
     timeObj.setHours(hours);
     timeObj.setMinutes("00");
@@ -100,6 +130,25 @@ export default function JobCard({ postingJobsData }) {
         </div >
       ))
       }
+            <Modal
+                show={showModal}
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+                class="modal-dialog modal-dialog-scrollable modal-lg"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>{job.jobTitle}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>{job.jobDescription && parse(job.jobDescription)}</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={() => handleApply()}>Apply</Button>
+                </Modal.Footer>
+            </Modal>
+
     </>
   )
 }
