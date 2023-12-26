@@ -47,8 +47,9 @@ export default function JobCard({ postingJobsData }) {
     console.log(job)
     if (location.pathname === '/') {
       handleShow()
+    }
   };
-  
+
   // time comes from the database like this "20:00 PM" => "20:00"
   function convertTo24HourFormat(timeString) {
     const [time, modifier] = timeString.split(" ");
