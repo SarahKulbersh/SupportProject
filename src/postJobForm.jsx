@@ -156,17 +156,16 @@ export function PostJobForm() {
                                     <button className='job_form_back_btn' onClick={() => handleBackBtn(1)}>
                                         <img src={leftArrow} alt="" />
                                         Back</button>
-                                    <button className='job_form_submit skill_btn' onClick={() => {
-                                        if (jobTitle === '') {
-                                            return; // Do not proceed with signUp function if any required field is empty
-                                        }
-
+                                    <button className='job_form_submit skill_btn' type='button' onClick={() => {
 
                                         // Validate all fields before submission
                                         for (const field in validationCard1) {
                                             handleBlurCard1(field);
                                         }
-                                        console.log(errors)
+                                        if (jobTitle === '') {
+                                            return; // Do not proceed with signUp function if any required field is empty
+                                        }
+
                                         if (errorValues.every(value => value === true)) {
                                             handleContinueBtn(1);
                                         }
