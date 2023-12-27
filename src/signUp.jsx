@@ -102,7 +102,6 @@ export const SignUp = () => {
             return; // Do not proceed with signUp function if any required field is empty
         }
 
-        console.log("signUp")
         try {
             await createUserWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
                 submitUserDetails(userEmail, userPassword)

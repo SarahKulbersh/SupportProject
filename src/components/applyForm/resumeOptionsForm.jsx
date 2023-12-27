@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, Container, Form } from 'react-bootstrap';
-import { uploadIcon, backArrowIcon, orLineIcon } from "../../assets/index"
+import { uploadIcon, orLineIcon } from "../../assets/index"
 import { database } from "../../firebaseConfig";
 import { applyFormCardNumberContext } from '../../Context';
 import { collection, setDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import Cookies from 'js-cookie';
+import SaveAndExit from './saveAndExit';
 
 function ResumeOptionsForm() {
   const { applyFormCardNumber, setApplyFormCardNumber } = useContext(applyFormCardNumberContext)
@@ -106,21 +107,6 @@ function ResumeOptionsForm() {
     const seconds = currentDate.getSeconds().toString().padStart(2, "0");
 
     return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
-  }
-  const SaveAndExit = ({ changeTo }) => {
-    return (<div className='job_save_exit'>
-      <div className='job_save_exit_head'>
-        {applyFormCardNumber !== 1 && <img onClick={() => { setApplyFormCardNumber(changeTo) }} className='' src={backArrowIcon} alt="" />}
-        <div className='job_save_exit_text' onClick={(e) => {
-          setApplyFormCardNumber(1);
-          navigate(-1);
-        }}>Exit</div>
-      </div>
-      <div className='job_save_exit_progress'>
-        <div style={{ width: `${((applyFormCardNumber / 5) * 100)}%` }} className='job_save_exit_complete'></div>
-        <div style={{ width: `${(((5 - applyFormCardNumber) / 5) * 100)}%` }} className='job_save_exit_left'></div>
-      </div>
-    </div>)
   }
 
   return (

@@ -16,10 +16,8 @@ export const Jobs = () => {
 
     const jobsPerPage = 6
     const handleAction = async (e, jobId, job) => {
-        console.log(job)
 
         const selectedValue = e.target.value;
-        console.log("value", selectedValue)
         if (selectedValue === "Edit") {
             // Open edit modal for the selected job
             setJobIdForUpdate(jobId)
@@ -68,7 +66,6 @@ export const Jobs = () => {
             {
                 arrayDocs.push(doc.id)
             }
-            console.log(doc.id, " => ", doc.data());
         });
 
         arrayDocs.map(docId => {

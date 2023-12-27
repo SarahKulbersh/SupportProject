@@ -1,35 +1,17 @@
-import React, { useContext, useState } from 'react'
-import { applyFormCardNumberContext } from '../../Context'
+import React, { useState } from 'react'
 import { Card, Container, Form } from 'react-bootstrap';
-import { backArrowIcon, crossIcon, dragIcon } from "../../assets/index"
+import { crossIcon, dragIcon } from "../../assets/index"
 import { v4 as uuidv4 } from 'uuid';
 import { setDoc, doc, serverTimestamp, updateDoc, getDoc } from "firebase/firestore";
 import { database, storage } from "../../firebaseConfig";
 import { ref, uploadBytes, deleteObject } from "firebase/storage";
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import SaveAndExit from './saveAndExit';
 
 function UploadFileForm() {
-    const navigate = useNavigate()
-    const { applyFormCardNumber, setApplyFormCardNumber } = useContext(applyFormCardNumberContext)
     const [resumeFile, setResumeFile] = useState('');
     const userId = sessionStorage.getItem("userId");
 
-    const SaveAndExit = ({ changeTo }) => {
-        return (<div className='job_save_exit'>
-            <div className='job_save_exit_head'>
-                {applyFormCardNumber !== 1 && <img onClick={() => { setApplyFormCardNumber(changeTo) }} className='' src={backArrowIcon} alt="" />}
-                <div className='job_save_exit_text' onClick={(e) => {
-                    setApplyFormCardNumber(1);
-                    navigate(-1);
-                }}>Exit</div>
-            </div>
-            <div className='job_save_exit_progress'>
-                <div style={{ width: `${((applyFormCardNumber / 5) * 100)}%` }} className='job_save_exit_complete'></div>
-                <div style={{ width: `${(((5 - applyFormCardNumber) / 5) * 100)}%` }} className='job_save_exit_left'></div>
-            </div>
-        </div>)
-    }
     const uploadFile = async (e) => {
 
         e.preventDefault()
@@ -63,7 +45,7 @@ function UploadFileForm() {
                 // console.log(resumeFile.type);
                 // console.log(resumeFile.name);
                 await uploadBytes(refFIle, resumeFile);
-                console.log()
+
                 const fileName = resumeFile.name + myId
                 await submitUserFileDetails(fileName)
                 // await updateIdentitiesUserApplies()

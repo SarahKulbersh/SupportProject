@@ -62,13 +62,11 @@ export function UpdatePostJobForm({job, jobId}) {
         return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
     }
     const isEst = () => {
-        console.log(selectedTime)
-        // const selectedTime = "Eastern Time (EST)";
         return selectedTime === "Eastern Time (EST)";
     };
 
     const updateJobPost = async (e) => {
-        console.log(jobId)
+
         const userId = sessionStorage.getItem("userId");
 
         const postingJobIdString = getCurrentDateTimeString() + '_' + userId;

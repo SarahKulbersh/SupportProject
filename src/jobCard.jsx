@@ -44,7 +44,6 @@ export default function JobCard({ postingJobsData }) {
 
   const openJob = (job) => {
     setJob(job);
-    console.log(job)
     if (location.pathname === '/') {
       handleShow()
     }

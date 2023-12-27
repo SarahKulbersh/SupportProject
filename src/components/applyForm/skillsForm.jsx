@@ -1,11 +1,12 @@
 import React, { useState, useContext } from 'react'
-import { addMore, backArrowIcon, deleteIcon } from "../../assets/index"
+import { addMore, deleteIcon } from "../../assets/index"
 import { applyFormCardNumberContext } from '../../Context';
 import { Card, Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { collection, setDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { database } from "../../firebaseConfig";
 import Cookies from 'js-cookie';
+import SaveAndExit from './saveAndExit';
 
 function SkillsForm() {
   const navigate = useNavigate()
@@ -27,21 +28,6 @@ function SkillsForm() {
   const removeSkill = (index) => {
     setSkills(skills.filter((item, i) => i !== index));
   };
-  const SaveAndExit = ({ changeTo }) => {
-    return (<div className='job_save_exit'>
-      <div className='job_save_exit_head'>
-        {applyFormCardNumber !== 1 && <img onClick={() => { setApplyFormCardNumber(changeTo) }} className='' src={backArrowIcon} alt="" />}
-        <div className='job_save_exit_text' onClick={(e) => {
-          setApplyFormCardNumber(1);
-          navigate(-1);
-        }}>Exit</div>
-      </div>
-      <div className='job_save_exit_progress'>
-        <div style={{ width: `${((applyFormCardNumber / 5) * 100)}%` }} className='job_save_exit_complete'></div>
-        <div style={{ width: `${(((5 - applyFormCardNumber) / 5) * 100)}%` }} className='job_save_exit_left'></div>
-      </div>
-    </div>)
-  }
   function submitApply() {
 
     const education = JSON.parse(Cookies.get("education"))

@@ -61,6 +61,7 @@ export const SignIn = () => {
             const firstName = userCredential.user.displayName.split(" ")[0];
             const lastName = userCredential.user.displayName.split(" ")[1];
             submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
+            console.log("locationbefore", sessionStorage.getItem("locationBeforeSignIn"))
             navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
 
