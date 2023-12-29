@@ -32,10 +32,12 @@ function LandingPage() {
             <button className='look_work_btn' onClick={handleClick}>View available oppurtunities</button>
           </div>
         </div>
-        <div className='look_work_box_child'>
-          <h2 className='look_work_desc'>Employer? How can we help with your hiring needs</h2>
-          <button className='look_work_btn' onClick={() => { navigate('/post') }}>View available oppurtunities</button>
-        </div>
+        {sessionStorage.getItem("isEmployee") !== "true" &&
+          <div className='look_work_box_child'>
+            <h2 className='look_work_desc'>Employer? Post your job with us.</h2>
+            <button className='look_work_btn' onClick={() => { navigate('/post') }}>View available oppurtunities</button>
+          </div>
+        }
       </div>
       <Footer />
     </>

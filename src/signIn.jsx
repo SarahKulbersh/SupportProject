@@ -12,6 +12,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import * as CryptoJS from 'crypto-js'
 import "./styles/signin.css";
+import { hasUnreliableEmptyValue } from "@testing-library/user-event/dist/utils";
 
 export const SignIn = () => {
 
@@ -19,10 +20,20 @@ export const SignIn = () => {
 
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
-
+    const [isEmployee, setIsEmployee] = useState(true); 
     const [errors, setErrors] = useState({}); // To store error input messages
     const errorValues = Object.values(errors);
 
+    const handleRadioButtonChange = (event) => {
+        // setIsEmployee(event.target.id === 'employee');
+        // console.log(isEmployee)
+        if (document.getElementById('employer').checked) {
+            setIsEmployee(false)
+          } else {
+            setIsEmployee(true)
+          }
+          
+    };
     const validation = {
 
         userEmail: () => {
@@ -61,6 +72,8 @@ export const SignIn = () => {
             const firstName = userCredential.user.displayName.split(" ")[0];
             const lastName = userCredential.user.displayName.split(" ")[1];
             submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
+            console.log("isEmployee",isEmployee)
+            sessionStorage.setItem("isEmployee", isEmployee)
             console.log("locationbefore", sessionStorage.getItem("locationBeforeSignIn"))
             navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
@@ -107,6 +120,8 @@ export const SignIn = () => {
                     else {
                         updatePassword(userEmail, userPassword)
                         sessionStorage.setItem("userId", userEmail);
+                        console.log("isEmployee",isEmployee)
+                        sessionStorage.setItem("isEmployee", isEmployee)
                         navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
                     }
@@ -114,6 +129,8 @@ export const SignIn = () => {
                 else if (userPassword === decryptedPassword) {
                     const userCredential = await signInWithEmailAndPassword(userAuth, userEmail, userPassword);
                     sessionStorage.setItem("userId", userEmail);
+                    console.log("isEmployee",isEmployee)
+                    sessionStorage.setItem("isEmployee", isEmployee)
                     navigate(sessionStorage.getItem("locationBeforeSignIn"))
                 } else {
                     alert("Invalid password");
@@ -158,11 +175,11 @@ export const SignIn = () => {
                         <h2 className=''>Sign In as</h2>
                         <div className='signin_method'>
                             <div className='employee_radiio'>
-                                <input type="radio" id='employee' defaultChecked={true} name='employ' />
+                                <input type="radio" id='employee' defaultChecked={true} name='employ' onChange={(e) =>{handleRadioButtonChange(e)}} />
                                 <label htmlFor="employee">Employee</label>
                             </div>
                             <div className='employee_radiio'>
-                                <input type="radio" id='employer' name='employ' />
+                                <input type="radio" id='employer' name='employ' onChange={(e) =>{handleRadioButtonChange(e)}}/>
                                 <label htmlFor="employer">Employer</label>
                             </div>
                         </div>

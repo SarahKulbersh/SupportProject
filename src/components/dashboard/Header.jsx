@@ -9,7 +9,7 @@ export const Header = () => {
                 <img src={notificationIcon} alt=""/>
                 <div>
                     <img src={proflieIcon} alt=""/>
-                    iliasmiah@example.com
+                    {sessionStorage.getItem("userId")}
                 </div>
             </div>
         </div>

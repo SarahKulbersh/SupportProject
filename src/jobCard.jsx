@@ -1,4 +1,4 @@
-import React, {  useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { JobContext, EstPreviewContext } from './Context';
 import { useNavigate, useLocation } from 'react-router-dom';
 import "./styles/recent_jobs.css";
@@ -15,16 +15,19 @@ export default function JobCard({ postingJobsData }) {
     sessionStorage.setItem("jobId", jobId)
     sessionStorage.setItem("jobTitle", jobTitle)
     if (sessionStorage.getItem("userId") === null) {
-        sessionStorage.setItem("locationBeforeSignIn", location.pathname)
-        navigate('/signin')
+      sessionStorage.setItem("locationBeforeSignIn", location.pathname)
+      navigate('/signin')
     }
     else {
-        navigate('/apply')
+      navigate('/apply')
     }
 
-}
+  }
 
-  const handleClose = () => setShowModal(false);
+  const handleClose = () => {
+    setShowModal(false);
+    setJob('')
+  }
   const handleShow = () => setShowModal(true);
 
   const location = useLocation()
@@ -91,36 +94,36 @@ export default function JobCard({ postingJobsData }) {
 
   return (
     <>
-      {postingJobsData?.map(job => (
-        <div className='recent_job_card' type='button' onClick={() => openJob(job)} key={job.postingJobId}>
-          <div className='recent_job_box_1' key={job.postingJobId}>
+      {postingJobsData?.map(Job => (
+        <div type='button' onClick={() => openJob(Job)} key={Job.postingJobId} className={`recent_job_card ${job?.postingJobId === Job.postingJobId ? 'clicked-card' : ''}`}>
+          <div className='recent_job_box_1' key={Job.postingJobId}>
 
-            <h3 >{job.jobTitle}</h3>
+            <h3 >{Job.jobTitle}</h3>
             {/* location causing error */}
             {/* <Card.Text>  {job.jobLocation}</Card.Text> */}
           </div>
           <div className='recent_job_company'>
-            <h4>{job.companyName}</h4>
-            <h6>{job.location}</h6>
+            <h4>{Job.companyName}</h4>
+            <h6>{Job.location}</h6>
           </div>
 
           <div className='recent_job_box_2'>
-            <div className='recent_job_box_btn_1'> {job.isFullTimeJob ? "Full Time" : "Part Time"}</div>
+            <div className='recent_job_box_btn_1'> {Job.isFullTimeJob ? "Full Time" : "Part Time"}</div>
 
             <div className='recent_job_box_btn_1'>
 
-              {job.startedTimeFrom && job.endedTimeIn ? (
+              {Job.startedTimeFrom && Job.endedTimeIn ? (
                 <>
-                  {convertTime(job.startedTimeFrom, job.isEST).replace(" ", "")}{" - "}
-                  {convertTime(job.endedTimeIn, job.isEST).replace(" ", "")}
-                  {(job.isEST && estPreview === null) || estPreview === true ? " EST" : " IST"}
+                  {convertTime(Job.startedTimeFrom, Job.isEST).replace(" ", "")}{" - "}
+                  {convertTime(Job.endedTimeIn, Job.isEST).replace(" ", "")}
+                  {(Job.isEST && estPreview === null) || estPreview === true ? " EST" : " IST"}
                 </>
               ) : null}
             </div>
           </div>
 
           <div className='recent_job_desc'>
-            {job?.jobDescription
+            {Job?.jobDescription
               ?.replace(/<[^>]+>/gm, ' ') // Replace any HTML tag with ''
               ?.split("\n")
               ?.join(" ")
@@ -130,24 +133,24 @@ export default function JobCard({ postingJobsData }) {
         </div >
       ))
       }
-            <Modal
-                show={showModal}
-                onHide={handleClose}
-                backdrop="static"
-                keyboard={false}
-                class="modal-dialog modal-dialog-scrollable modal-lg"
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>{job.jobTitle}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>{job.jobDescription && parse(job.jobDescription)}</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={() => handleApply()}>Apply</Button>
-                </Modal.Footer>
-            </Modal>
+      <Modal
+        show={showModal}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+        class="modal-dialog modal-dialog-scrollable modal-lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{job.jobTitle}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{job.jobDescription && parse(job.jobDescription)}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => handleApply()}>Apply</Button>
+        </Modal.Footer>
+      </Modal>
 
     </>
   )

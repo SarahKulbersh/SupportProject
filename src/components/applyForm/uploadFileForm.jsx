@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Card, Container, Form } from 'react-bootstrap';
 import { crossIcon, dragIcon } from "../../assets/index"
 import { v4 as uuidv4 } from 'uuid';
@@ -6,11 +6,14 @@ import { setDoc, doc, serverTimestamp, updateDoc, getDoc } from "firebase/firest
 import { database, storage } from "../../firebaseConfig";
 import { ref, uploadBytes, deleteObject } from "firebase/storage";
 import Cookies from 'js-cookie';
+import { applyFormCardNumberContext } from '../../Context';
+
 import SaveAndExit from './saveAndExit';
 
 function UploadFileForm() {
     const [resumeFile, setResumeFile] = useState('');
     const userId = sessionStorage.getItem("userId");
+    const { applyFormCardNumber, setApplyFormCardNumber } = useContext(applyFormCardNumberContext)
 
     const uploadFile = async (e) => {
 
@@ -50,6 +53,8 @@ function UploadFileForm() {
                 await submitUserFileDetails(fileName)
                 // await updateIdentitiesUserApplies()
                 await addToApplicationsCollection()
+                setApplyFormCardNumber(1)
+
 
             } catch (err) {
                 console.log("error", err)

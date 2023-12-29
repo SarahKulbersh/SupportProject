@@ -15,9 +15,10 @@ export default function NavBar() {
     const handleSignOut = (e) => {
         sessionStorage.removeItem('userId');
         setUserId(null);
+        sessionStorage.removeItem("isEmployee")
     };
     const handleSignIn = (e) => {
-        sessionStorage.setItem("locationBeforeSignIn", location.pathname )
+        sessionStorage.setItem("locationBeforeSignIn", location.pathname)
         navigate('/signin')
     };
 
@@ -44,7 +45,9 @@ export default function NavBar() {
                     </select>
                 </div> */}
                 <Link to='/post'>
-                    <button className='signin submit_job_btn'>Submit job</button>
+                    {sessionStorage.getItem("isEmployee") !== "true" &&
+                        <button className='signin submit_job_btn'>Submit job</button>
+                    }
                 </Link>
                 {!userId &&
                     <button className='signin' onClick={handleSignIn}>

@@ -37,7 +37,16 @@
     border: 2px solid var(--text-color-15, #2557A7);
     transition: border 0.1s ease-in-out;
 }
-
+.clicked-card {
+    display: flex;
+    width: 562px;
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid var(--text-color-15, #2557A7);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
 
 .recent_job_box_1 {
     display: flex;

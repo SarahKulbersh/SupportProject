@@ -20,9 +20,13 @@ export const SignUp = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [errors, setErrors] = useState({}); // To store error messages
+    const [isEmployee, setIsEmployee] = useState(true); 
 
     const errorValues = Object.values(errors);
 
+    const handleRadioButtonChange = (event) => {
+        setIsEmployee(event.target.id === 'employee');
+    };
     const validation = {
 
         firstName: () => {
@@ -106,6 +110,7 @@ export const SignUp = () => {
             await createUserWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
                 submitUserDetails(userEmail, userPassword)
                 sessionStorage.setItem("userId", userEmail);
+                sessionStorage.setItem("isEmployee", isEmployee)
                 navigate(sessionStorage.getItem("locationBeforeSignIn"))
             });
         }
@@ -123,6 +128,7 @@ export const SignUp = () => {
             const firstName = userCredential.user.displayName.split(" ")[0];
             const lastName = userCredential.user.displayName.split(" ")[1];
             submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
+            sessionStorage.setItem("isEmployee", isEmployee)
             navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
         }).catch((err) => {
@@ -160,11 +166,11 @@ export const SignUp = () => {
                         <h2 className=''>Sign Up as</h2>
                         <div className='signin_method'>
                             <div className='employee_radiio'>
-                                <input type="radio" id='employee' defaultChecked={true} name='employ' />
+                                <input type="radio" id='employee' defaultChecked={true} name='employ' onChange={(e) =>{handleRadioButtonChange(e)}}/>
                                 <label htmlFor="employee">Employee</label>
                             </div>
                             <div className='employee_radiio'>
-                                <input type="radio" id='employer' name='employ' />
+                                <input type="radio" id='employer' name='employ' onChange={(e) =>{handleRadioButtonChange(e)}} />
                                 <label htmlFor="employer">Employer</label>
                             </div>
                         </div>

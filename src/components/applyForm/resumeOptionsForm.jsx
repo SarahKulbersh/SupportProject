@@ -44,6 +44,8 @@ function ResumeOptionsForm() {
         // updateIdentitiesUserApplies()
         addToApplicationsCollection()
         updateApplyJobs()
+        emailEmployer()
+        setApplyFormCardNumber(1)
       } catch (err) {
         console.log(err)
       }
@@ -51,10 +53,10 @@ function ResumeOptionsForm() {
     }
   }
   async function addToApplicationsCollection() {
-    const employeeId = extractEmailFromDateString(sessionStorage.getItem("jobId"));
+    const employerId = extractEmailFromDateString(sessionStorage.getItem("jobId"));
     const postDate = extractDateTime(sessionStorage.getItem("jobId"))
     const userId = sessionStorage.getItem("userId");
-    const applicationDocId = employeeId + "_#_" + postDate + "_#_" + userId;
+    const applicationDocId = employerId + "_#_" + postDate + "_#_" + userId;
 
     try {
       await setDoc(doc(database, "jobApplications", applicationDocId), {
@@ -62,6 +64,7 @@ function ResumeOptionsForm() {
         firstName: Cookies.get('firstName'),
         lastName: Cookies.get('lastName'),
         jobTitle: sessionStorage.getItem("jobTitle"),
+        jobId: sessionStorage.getItem("jobId")
       });
     } catch (error) {
       console.error("Error submitUserDetails:", error);
@@ -107,6 +110,27 @@ function ResumeOptionsForm() {
     const seconds = currentDate.getSeconds().toString().padStart(2, "0");
 
     return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
+  }
+
+  const emailEmployer = async () => {
+
+    const userId = sessionStorage.getItem("userId")
+    const jobId = sessionStorage.getItem("jobId")
+    const employerId = extractEmailFromDateString(jobId)
+    const date = getCurrentDateTimeString()
+
+    try {
+      await setDoc(doc(database, "mail", `${userId}_#_${date}_#_${employerId}`), {
+        to: [userId],
+        message: {
+          subject: 'Hello from Firebase!',
+          text: 'This is the plaintext section of the email body.',
+          html: 'This is the <code>HTML</code> section of the email body.',
+        }
+      });
+    } catch (error) {
+      console.error("Error submitUserDetails:", error);
+    }
   }
 
   return (

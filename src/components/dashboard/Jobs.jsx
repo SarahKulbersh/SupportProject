@@ -14,7 +14,7 @@ export const Jobs = () => {
     const [jobIdForUpdate, setJobIdForUpdate] = useState('')
     const [jobForUpdate, setJobForUpdate] = useState()
 
-    const jobsPerPage = 6
+    const [jobsPerPage, setJobsPerPage] = useState(6)
     const handleAction = async (e, jobId, job) => {
 
         const selectedValue = e.target.value;
@@ -41,6 +41,7 @@ export const Jobs = () => {
             console.log("update successful")
 
             await deleteApplications(jobId)
+            setJobLength(jobsLength-1)
 
         } catch (error) {
             console.error("Error updating field:", error);
@@ -96,7 +97,7 @@ export const Jobs = () => {
         fetchPostingJobs(page).then((r) => {
             setJobs(r)
         })
-    }, [page]);
+    }, [jobsLength, page]);
 
     return (
         <>
@@ -110,7 +111,7 @@ export const Jobs = () => {
                 <>
                     <div className='job_dashboard'>
 
-                        <h2 className="job_dashboard_title">My Jobs ({jobsPerPage})</h2>
+                        <h2 className="job_dashboard_title">My Jobs ({jobsLength})</h2>
                         <div className='job_table'>
                             <div className='job_table_thead'>
                                 <div className='job_table_th job_table_td_name'>Job Title</div>
