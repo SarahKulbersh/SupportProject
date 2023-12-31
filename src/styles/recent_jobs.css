@@ -6,9 +6,9 @@
     gap: 60px;
 }
 
-.recent_job_list{
+.recent_job_list {
     display: grid;
-    grid-template-columns: repeat(2,auto);
+    grid-template-columns: repeat(2, auto);
     gap: 32px;
 }
 
@@ -33,10 +33,11 @@
     gap: 20px;
 }
 
-.recent_job_card:hover{
-    border: 2px solid var(--text-color-15, #2557A7);
+.recent_job_card:hover {
+    border: 2px solid var(--text-color-15, #2557A7) !important;
     transition: border 0.1s ease-in-out;
 }
+
 .clicked-card {
     display: flex;
     width: 562px;
@@ -47,6 +48,7 @@
     align-items: flex-start;
     gap: 20px;
 }
+
 
 .recent_job_box_1 {
     display: flex;
@@ -103,14 +105,14 @@
     margin: 0;
 }
 
-.recent_job_box_2{
+.recent_job_box_2 {
     display: flex;
     align-items: center;
     gap: 12px;
     align-self: stretch;
 }
 
-.recent_job_box_btn_1{
+.recent_job_box_btn_1 {
     display: flex;
     height: 32px;
     padding: 9px 18px;
@@ -123,13 +125,14 @@
     color: var(--text-color-75, #485466);
     font-family: Raleway;
     font-size: 14px;
+    white-space: nowrap;
     font-style: normal;
     font-weight: 500;
     line-height: 22px;
     cursor: pointer;
 }
 
-.recent_job_desc{
+.recent_job_desc {
     line-height: 22px;
     align-self: stretch;
     color: var(--text-color-60, #6D7685);
@@ -139,7 +142,7 @@
     font-weight: 500;
 }
 
-.recent_job_apply{
+.recent_job_apply {
     display: flex;
     height: 40px;
     padding: 9px 18px;
@@ -160,7 +163,7 @@
     margin-left: calc(100% - 75px);
 }
 
-.recent_jobs_learn_more{
+.recent_jobs_learn_more {
     display: flex;
     height: 56px;
     padding: 15px 30px;
@@ -180,22 +183,23 @@
 }
 
 @media only screen and (max-width: 1200px) {
-    .recent_jobs{
+    .recent_jobs {
         padding: 75px 0;
     }
-    .recent_job_card{
+
+    .recent_job_card {
         width: 450px;
     }
 }
 
 @media only screen and (max-width: 1000px) {
-    .recent_job_list{
+    .recent_job_list {
         grid-template-columns: auto;
     }
 }
 
 @media only screen and (max-width: 600px) {
-    .recent_job_card{
+    .recent_job_card {
         width: 80vw;
     }
 }

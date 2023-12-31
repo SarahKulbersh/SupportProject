@@ -17,6 +17,7 @@ export function JobApplyForm() {
     return (
         <>
         <NavBar />
+        <br/><br/><br/>
         <Container className='job_apply_form'>            
             {applyFormCardNumber === 1 && <UserDetails />}
             {applyFormCardNumber === 2 && <ResumeOptionsForm />}

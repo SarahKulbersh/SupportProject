@@ -121,11 +121,11 @@ function ResumeOptionsForm() {
 
     try {
       await setDoc(doc(database, "mail", `${userId}_#_${date}_#_${employerId}`), {
-        to: [userId],
+        to: [employerId],
         message: {
-          subject: 'Hello from Firebase!',
+          subject: `${Cookies.get('firstName')} ${Cookies.get('lastName')} might be a good fit for ${sessionStorage.getItem("jobTitle")} `,
           text: 'This is the plaintext section of the email body.',
-          html: 'This is the <code>HTML</code> section of the email body.',
+          html: `Contact ${Cookies.get('firstName') +" "+ Cookies.get('lastName')} by emailing ${userId} or calling ${Cookies.get('phone')}.`,
         }
       });
     } catch (error) {

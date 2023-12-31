@@ -1,8 +1,6 @@
 .job_apply_form {
     padding: 20px;
     max-width: 650px;
-    padding-top: 150px;
-
 }
 
 .job_apply_form img{
@@ -12,6 +10,7 @@
 .job_apply_form_body {
     padding: 32px;
 }
+
 
 .job_apply_form h4 {
     color: var(--text-color-100, #0B1B33);
@@ -64,10 +63,6 @@
 .job_form_phone_code {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
-}
-
-.job_form_phone_code {
-    width: 20%;
 }
 
 .job_form_submit {
@@ -153,7 +148,8 @@
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    margin: 0;
+    /* margin: 0; */
+    padding-top: 100px;
 }
 
 .job_form_upload_desc {
@@ -176,10 +172,12 @@
     border-radius: 8px;
     border: 1px solid var(--text-color-15, #DADDE0);
 }
+
 .job_apply_upload_box:hover{
     border: 2px solid var(--text-color-15, #2557A7) !important;
     transition: border 0.1s ease-in-out;
 }
+
 
 .job_form_upload_desc_rec {
     padding: 4px 8px;
@@ -255,7 +253,7 @@
 
 .job_form_resume_upload_btn {
     border-radius: 8px;
-    background: var(--primary-color-60, #2557A7);
+    background: var(--primary-color-60, #7C9ACA);
     display: flex;
     height: 56px;
     padding: 15px 30px;

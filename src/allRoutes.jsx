@@ -19,7 +19,6 @@ export default function AllRoutes() {
       <Route path='dashboard/:tab' element={<Dashboard />} />
       <Route path='/signin' element={<SignIn />} />
       <Route path='/signup' element={<SignUp />} />
-
     </Routes>
 
   )

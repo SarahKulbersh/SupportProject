@@ -205,6 +205,7 @@ const addJobPost = async (e) => {
 return (
     <>
         <NavBar />
+        <br/><br/><br/>
         <Container className='job_apply_form'>
             {cardNumber === 1 &&
                 <Card>

@@ -49,6 +49,7 @@ function SkillsForm() {
     updateApplyJobs()
     // updateIdentitiesUserApplies()
     addToApplicationsCollection()
+    emailEmployer()
     setApplyFormCardNumber(1)
     navigate(-1)
   }
@@ -183,6 +184,73 @@ function SkillsForm() {
     const seconds = currentDate.getSeconds().toString().padStart(2, "0");
 
     return `${hours}_${minutes}_${seconds}_${year}_${month}_${day}`;
+  }
+
+  const emailEmployer = async () => {
+
+    const userId = sessionStorage.getItem("userId")
+    const jobId = sessionStorage.getItem("jobId")
+    const employerId = extractEmailFromDateString(jobId)
+    const date = getCurrentDateTimeString()
+    // Get user's details from cookies
+    const firstName = Cookies.get("firstName");
+    const lastName = Cookies.get("lastName");
+    const phone = Cookies.get("phone");
+    const city = Cookies.get("city");
+
+    // Get user's education from cookies
+    const education = JSON.parse(Cookies.get("education"));
+
+    // Get user's skills from state
+    const skills2 = skills.join(", ");
+
+    const workHistory = JSON.parse(Cookies.get("workHistory"));
+    try {
+      await setDoc(doc(database, "mail", `${userId}_#_${date}_#_${employerId}`), {
+        to: [employerId],
+        message: {
+          subject: `${firstName} ${lastName} might be a good fit for ${sessionStorage.getItem("jobTitle")} `,
+          text: 'This is the plaintext section of the email body.',
+          html: `
+          Contact ${firstName} ${lastName} by emailing ${userId} or calling ${phone} in ${city}.
+
+          <br/>
+
+          <p>Education</p>
+          <ul>
+            ${education
+              .map(
+                (e) =>
+                  `<li>${e.educationLevel} - ${e.schoolName}</li>`
+              )
+              .join("")}
+          </ul>
+
+          <br/>
+
+          <p>Skills</p>
+          <p>${skills2}</p>
+
+          <br/>
+
+          <p>Work History</p>
+          <ul>
+            ${workHistory
+              .map(
+                (job) =>
+                  `<li>${job.title} at ${job.company}</li>
+                  <ul>
+                    <li>${job.description}</li>
+                    <li>Time of Work: ${job.timeOfWorkFromMonth}/${job.timeOfWorkFromYear} - ${job.timeOfWorkToMonth}/${job.timeOfWorkToYear}</li>
+                  </ul>`
+              )
+              .join("")}
+          </ul>`,
+        }
+      });
+    } catch (error) {
+      console.error("Error submitUserDetails:", error);
+    }
   }
 
 

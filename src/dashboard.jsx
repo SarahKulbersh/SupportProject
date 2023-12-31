@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import "./styles/dashboard.css";
+// import "./styles/dashboard2.css";
 import { SideBar } from "./components/dashboard/EmployerSideBar";
 import { useParams } from "react-router-dom";
 import { Header } from "./components/dashboard/Header";

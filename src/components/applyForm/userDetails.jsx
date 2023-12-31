@@ -10,7 +10,7 @@ function UserDetails() {
 
     const submitUserDetails = () => {
         Cookies.set('firstName', firstName);
-        Cookies.set('lastName', firstName);
+        Cookies.set('lastName', lastName);
         Cookies.set('email', email);
         Cookies.set('city', city);
         Cookies.set('phone', phone);
