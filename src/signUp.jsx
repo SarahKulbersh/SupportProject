@@ -169,8 +169,8 @@ export const SignUp = () => {
             <NavBar />
             <div className='job_portal_signin signup'>
                 <div className='signin_box'>
-                    {!isEmployee && <h2 className=''>Sign Up</h2>}
-                    {isEmployee &&
+                    {sessionStorage.getItem("locationBeforeSignIn") === '/post' && <h2 className=''>Sign Up</h2>}
+                    {sessionStorage.getItem("locationBeforeSignIn") !== '/post' &&
                         <div className='signin_box_head'>
                             <h2 className=''>Sign Up as</h2>
                             <div className='signin_method'>
