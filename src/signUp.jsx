@@ -16,6 +16,7 @@ export const SignUp = () => {
     const lastLocation = sessionStorage.getItem("locationBeforeSignIn")
 
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
@@ -111,6 +112,7 @@ export const SignUp = () => {
         }
 
         try {
+            setIsLoading(true)
             await createUserWithEmailAndPassword(userAuth, userEmail, userPassword).then((userCredential) => {
                 submitUserDetails(userEmail, userPassword)
                 sessionStorage.setItem("userId", userEmail);
@@ -121,6 +123,7 @@ export const SignUp = () => {
         catch (err) {
             alert(err)
         }
+        setIsLoading(false)
     };
 
     // sign in with google
@@ -128,6 +131,7 @@ export const SignUp = () => {
         if (lastLocation === '/post') {
             setIsEmployee(false)
         }
+        setIsLoading(true)
 
         await signInWithPopup(userAuth, userAuthWithGoogle).then((userCredential) => {
 
@@ -143,6 +147,8 @@ export const SignUp = () => {
             console.log(err.code);
             console.log(err.message);
         });
+        setIsLoading(false)
+
     };
     const submitUserDetailsGoogleSignIn = async (userEmail, firstName, lastName) => {
 
@@ -220,7 +226,7 @@ export const SignUp = () => {
                                 if (errorValues.every(value => value === true)) {
                                     signUp();
                                 }
-                            }}>Sign Up</div>
+                            }}>{isLoading === false? <div>Sign In</div> : <div className="dot-flashing"></div>}</div>
                         <div className='d-flex flex-column align-items-center gap-2'>
                             <h2 className='signin_desc'>OR</h2>
                             <h2 className='signin_desc'>Sign Up with </h2>

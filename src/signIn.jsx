@@ -12,12 +12,13 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { collection, setDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import * as CryptoJS from 'crypto-js'
 import "./styles/signin.css";
-import { hasUnreliableEmptyValue } from "@testing-library/user-event/dist/utils";
+import './styles/dotsLoading.css'
 
 export const SignIn = () => {
 
     const navigate = useNavigate();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
     const [isEmployee, setIsEmployee] = useState(
@@ -65,7 +66,7 @@ export const SignIn = () => {
 
     // sign in with google
     const signInGoogle = async () => {
-
+        setIsLoading(true)
         await signInWithPopup(userAuth, userAuthWithGoogle).then((userCredential) => {
 
             sessionStorage.setItem("userId", userCredential.user.email);
@@ -81,6 +82,8 @@ export const SignIn = () => {
             console.log(err.code);
             console.log(err.message);
         });
+        setIsLoading(false)
+
     };
     const submitUserDetailsGoogleSignIn = async (userEmail, firstName, lastName) => {
 
@@ -101,6 +104,8 @@ export const SignIn = () => {
         }
     }
     const signIn = async () => {
+        setIsLoading(true)
+
         try {
             // Retrieve the user document from the database
             const userDoc = doc(database, "person", userEmail);
@@ -133,6 +138,8 @@ export const SignIn = () => {
         } catch (error) {
             console.error("Error signing in:", error.code, error.message);
         }
+        setIsLoading(false)
+
     };
 
     async function updatePassword(userId, pass) {
@@ -201,7 +208,7 @@ export const SignIn = () => {
                             if (errorValues.every(value => value === true)) {
                                 signIn();
                             }
-                        }}>Sign In</div>
+                        }}>{isLoading === false? <div>Sign In</div> : <div className="dot-flashing"></div>}</div>
                         <div className='d-flex flex-column align-items-center gap-2'>
                             <h2 className='signin_desc'>OR</h2>
                             <h2 className='signin_desc'>Sign In with </h2>
