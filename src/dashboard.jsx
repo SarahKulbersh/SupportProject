@@ -20,12 +20,9 @@ export default function Dashboard() {
     useEffect(() => {
         const check = sessionStorage.getItem("isEmployee")
         if (check === "true")
-        setIsEmployee(true);
-    else 
-    setIsEmployee(false);
-
-        console.log(isEmployee)
-
+            setIsEmployee(true);
+        else
+            setIsEmployee(false);
     }, [])
 
     return (<div className='dashboard'>

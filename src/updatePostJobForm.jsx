@@ -11,7 +11,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import parse from 'html-react-parser';
 
-export function UpdatePostJobForm({job, jobId}) {
+export function UpdatePostJobForm({ job, jobId }) {
 
     const hoursList = [
         "00:00 AM", "01:00 AM", "02:00 AM", "03:00 AM", "04:00 AM", "05:00 AM",
@@ -23,7 +23,7 @@ export function UpdatePostJobForm({job, jobId}) {
     const [location, setLocation] = useState(job.jobLocation);
     const [jobTitle, setJobTitle] = useState(job.jobTitle);
     const [selectedFullPart, setSelectedFullPart] = useState(job.isFullTimeJob);
-    const [selectedTime, setSelectedTime] = useState(job.isEST?("Eastern Time (EST)") : ("Israel Time (IST)"));
+    const [selectedTime, setSelectedTime] = useState(job.isEST ? ("Eastern Time (EST)") : ("Israel Time (IST)"));
     const [startTime, setStartTime] = useState(job.startedTimeFrom);
     const [endTime, setEndTime] = useState(job.endedTimeIn);
     const [description, setDescription] = useState(job.jobDescription);
@@ -91,7 +91,6 @@ export function UpdatePostJobForm({job, jobId}) {
                 updatedAt: serverTimestamp(),
                 isJobActive: true,
             });
-            console.log("Document added to subcollection successfully!");
         } catch (error) {
             console.log("Error adding document:", error);
         }
@@ -167,14 +166,14 @@ export function UpdatePostJobForm({job, jobId}) {
                                     <div className='job_date_from_to'>
                                         <Form.Label>From</Form.Label>
                                         <Form.Select value={startTime} onChange={(e) => setStartTime(e.target.value)}>
-                                        {hoursList.map((hour, index) => (
+                                            {hoursList.map((hour, index) => (
                                                 <option key={index} value={hour}>
                                                     {hour}
                                                 </option>
                                             ))}                                        </Form.Select>
                                         <Form.Label>Until</Form.Label>
                                         <Form.Select value={endTime} onChange={(e) => setEndTime(e.target.value)}>
-                                             {hoursList.map((hour, index) => (
+                                            {hoursList.map((hour, index) => (
                                                 <option key={index} value={hour}>
                                                     {hour}
                                                 </option>
@@ -279,14 +278,14 @@ export function UpdatePostJobForm({job, jobId}) {
 
                             </div>
 
-                                <div className='job_apply_end_btns'>
-                                    <button className='job_form_back_btn' onClick={() => handleBackBtn(4)}>
-                                        <img src={leftArrow} alt="" />
-                                        Back</button>
-                                    <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(4)}>
-                                        continue  <img src={rightArrow} alt="" />
-                                    </button>
-                                </div>
+                            <div className='job_apply_end_btns'>
+                                <button className='job_form_back_btn' onClick={() => handleBackBtn(4)}>
+                                    <img src={leftArrow} alt="" />
+                                    Back</button>
+                                <button className='job_form_submit skill_btn' onClick={() => handleContinueBtn(4)}>
+                                    continue  <img src={rightArrow} alt="" />
+                                </button>
+                            </div>
 
                         </Form>
 

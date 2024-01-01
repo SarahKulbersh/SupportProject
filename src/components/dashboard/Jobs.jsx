@@ -38,7 +38,6 @@ export const Jobs = () => {
             await updateDoc(jobDoc, {
                 isJobActive: false
             });
-            console.log("update successful")
 
             await deleteApplications(jobId)
             setJobLength(jobsLength-1)

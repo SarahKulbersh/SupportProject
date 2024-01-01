@@ -72,11 +72,8 @@ export const SignIn = () => {
             const firstName = userCredential.user.displayName.split(" ")[0];
             const lastName = userCredential.user.displayName.split(" ")[1];
             submitUserDetailsGoogleSignIn(userCredential.user.email, firstName, lastName)
-            console.log("isEmployee",isEmployee)
             sessionStorage.setItem("isEmployee", isEmployee)
-            console.log("locationbefore", sessionStorage.getItem("locationBeforeSignIn"))
             navigate(sessionStorage.getItem("locationBeforeSignIn"))
-
 
         }).catch((err) => {
 
@@ -111,7 +108,6 @@ export const SignIn = () => {
 
             if (userData) {
                 const decryptedPassword = decrypt(userData.uPassword);
-                console.log(decryptedPassword)
 
                 if (userData.uPassword === '') {
                     if (userPassword.length < 6)
@@ -120,7 +116,6 @@ export const SignIn = () => {
                     else {
                         updatePassword(userEmail, userPassword)
                         sessionStorage.setItem("userId", userEmail);
-                        console.log("isEmployee",isEmployee)
                         sessionStorage.setItem("isEmployee", isEmployee)
                         navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
@@ -129,7 +124,6 @@ export const SignIn = () => {
                 else if (userPassword === decryptedPassword) {
                     const userCredential = await signInWithEmailAndPassword(userAuth, userEmail, userPassword);
                     sessionStorage.setItem("userId", userEmail);
-                    console.log("isEmployee",isEmployee)
                     sessionStorage.setItem("isEmployee", isEmployee)
                     navigate(sessionStorage.getItem("locationBeforeSignIn"))
                 } else {

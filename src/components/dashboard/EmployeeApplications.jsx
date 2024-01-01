@@ -29,13 +29,9 @@ export const EmployeeApplication = () => {
 
     const deleteApplication = async (jobId) => {
 
-        console.log(jobId)
         const employeeId = extractEmailFromDateString(jobId)
         const postDate = extractDateTime(jobId)
         const userId = sessionStorage.getItem("userId")
-        console.log(employeeId)
-        console.log(postDate)
-        console.log(userId)
 
         try {
             await deleteDoc(doc(database, "jobApplications", `${employeeId}_#_${postDate}_#_${userId}`));
@@ -44,7 +40,6 @@ export const EmployeeApplication = () => {
         catch (err) {
             console.log(err)
         }
-
     }
     const fetchApplications = async () => {
         const userId = sessionStorage.getItem("userId");

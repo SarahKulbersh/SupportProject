@@ -190,7 +190,6 @@ const addJobPost = async (e) => {
                 isJobActive: true,
                 createdAt: serverTimestamp()
             });
-            console.log("Document added to subcollection successfully!");
             navigate(-1)
 
         } catch (error) {

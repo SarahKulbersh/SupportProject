@@ -31,10 +31,7 @@ function SkillsForm() {
   function submitApply() {
 
     const education = JSON.parse(Cookies.get("education"))
-    console.log("education", education[0])
     const jobs = JSON.parse(Cookies.get("workHistory"))
-    console.log("jobs", jobs)
-
 
     skills?.map(s => (
       submitSkills(s)
@@ -219,10 +216,7 @@ function SkillsForm() {
           <p>Education</p>
           <ul>
             ${education
-              .map(
-                (e) =>
-                  `<li>${e.educationLevel} - ${e.schoolName}</li>`
-              )
+              .map((e) =>`<li>${e.educationLevel} - ${e.schoolName}</li>`)
               .join("")}
           </ul>
 

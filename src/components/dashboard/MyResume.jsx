@@ -1,34 +1,20 @@
-import { backArrowIcon, deleteIcon, editIcon } from "../../assets";
+import { backArrowIcon, addMore, deleteIcon, editIcon } from "../../assets";
 import { useEffect, useState } from "react";
-import { EditResume } from "./EditResume.jsx";
+import { EditResume } from "./editResumeForms/EditResume.jsx";
 import { doc } from 'firebase/firestore';
-import { getDoc, deleteDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { getDoc, deleteDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
 import { database } from "../../firebaseConfig.js";
 import Cookies from "js-cookie";
 
-const profileDetailsInit = {
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "iliasdemo@gmail.com",
-    address: "Brooklyn, New York",
-    education: "Master’s degree CUNY school of medicine",
-    skills: ["QuickBooks", "Microsoft Excel"],
-    educationTime: "April 2015 to April 2019",
-    cityName: "",
-    work: {
-        jobTitle: "UI UX Designer",
-        company: "Fiverr/Upwork ",
-        description: "",
-        JobPeriodToYear: "",
-        JobPeriodToMonth: "",
-        JobPeriodFromYear: "",
-        JobPeriodFromMonth: ""
-    }
-}
 export const MyResume = () => {
 
-    const [profileDetails, setProfileDetails] = useState(profileDetailsInit);
+    const [profileDetails, setProfileDetails] = useState({
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        email: "",
+        city: "",
+    });
     const [educationDetails, setEducationDetails] = useState();
     const [workHistoryDetails, setWorkHistoryDetails] = useState();
     const [skillsDetails, setSkillsDetails] = useState();
@@ -41,13 +27,11 @@ export const MyResume = () => {
             const personDocRef = doc(database, 'person', userId);
             const docsSnap = await getDoc(personDocRef);
             const userData = docsSnap?.data();
-            console.log(userData)
             setProfileDetails(userData);
         } catch (error) {
             console.log(error)
         }
     }
-
     const fetchEducation = async () => {
         try {
             const userId = sessionStorage.getItem("userId");
@@ -98,13 +82,38 @@ export const MyResume = () => {
         }
     }
 
-
     useEffect(() => {
         fetchDetails();
         fetchEducation()
         fetchWorkHistory()
         fetchSkills()
     }, [])
+    useEffect(() => {
+        fetchDetails();
+        fetchEducation()
+        fetchWorkHistory()
+        fetchSkills()
+    }, [page])
+
+    const removeWorkHistory = async (index) => {
+        const userId = sessionStorage.getItem("userId")
+        const persons = collection(database, "person");
+        const userRef = doc(persons, userId);
+        const workHistoryId = `${workHistoryDetails[index].timeOfWorkFromYear}-${workHistoryDetails[index].timeOfWorkToYear}`;
+        const docRef = doc(collection(userRef, 'workHistory'), workHistoryId);
+        await deleteDoc(docRef);
+        fetchWorkHistory()
+
+    }
+    const removeEducation = async (index) => {
+        const userId = sessionStorage.getItem("userId")
+        const persons = collection(database, "person");
+        const userRef = doc(persons, userId);
+        const educationId = `${educationDetails[index].timeOfStudyFromYear}-${educationDetails[index].timeOfStudyToYear}`;
+        const docRef = doc(collection(userRef, 'educations'), educationId);
+        await deleteDoc(docRef);
+        fetchEducation()
+    }
     const removeSkill = async (index) => {
         try {
             const userId = sessionStorage.getItem("userId");
@@ -124,6 +133,11 @@ export const MyResume = () => {
             console.log(error);
         }
     };
+
+    const handleClickEdit = (number, item) => {
+        sessionStorage.setItem('editObject', JSON.stringify(item));
+        setPage(number);
+    }
     return (
         <div className='my_resume'>
             {page < 0 ? (<div className='my_resume_box'>
@@ -131,7 +145,7 @@ export const MyResume = () => {
                     <div className='resume_prof_edit_head'>
                         <div className="my_resume_name">{profileDetails.firstName + " " + profileDetails.lastName}</div>
                         <div className='my_resume_edit_imgs'>
-                            <img src={editIcon} alt="" onClick={() => setPage(1)} />
+                            <img src={editIcon} alt="" onClick={() => handleClickEdit(1, profileDetails)} />
                         </div>
                     </div>
                     <div className="resume_desc_details">{profileDetails.phoneNumber}</div>
@@ -149,8 +163,8 @@ export const MyResume = () => {
                                 <div className="resume_desc_details" style={{ color: 'black' }}>{item.title}</div>
 
                                 <div className='my_resume_edit_imgs'>
-                                    <img src={editIcon} alt="" onClick={() => setPage(3)} />
-                                    <img src={deleteIcon} onClick={() => { }} alt="" />
+                                    <img src={editIcon} alt="" onClick={() => handleClickEdit(2, item)} />
+                                    <img src={deleteIcon} onClick={() => { removeWorkHistory(index) }} alt="" />
                                 </div>
                             </div>
                             <div className="resume_desc_details">{item.company}</div>
@@ -170,8 +184,8 @@ export const MyResume = () => {
                             <div className='resume_prof_edit_head'>
                                 <div className="resume_desc_details" style={{ color: 'black' }}>{item.educationLevel}</div>
                                 <div className='my_resume_edit_imgs'>
-                                    <img src={editIcon} alt="" onClick={() => setPage(3)} />
-                                    <img src={deleteIcon} onClick={() => { setProfileDetails(prev => ({ ...prev, educationTime: "", education: "" })) }} alt="" />
+                                    <img src={editIcon} alt="" onClick={() => handleClickEdit(3, item)} />
+                                    <img src={deleteIcon} onClick={() => { removeEducation(index) }} alt="" />
                                 </div>
                             </div>
                             <div className="resume_desc_details">{item.studyName}</div>
@@ -190,7 +204,7 @@ export const MyResume = () => {
                                 <div className="resume_desc_details" style={{ color: 'black' }}>{e.skillName}</div>
 
                                 <div className='my_resume_edit_imgs'>
-                                    <img src={editIcon} alt="" onClick={() => setPage(4)} />
+                                    <img src={editIcon} alt="" onClick={() => handleClickEdit(4, skillsDetails)} />
                                     <img src={deleteIcon} onClick={() => removeSkill(i)} alt="" />
                                 </div>
                             </div>
