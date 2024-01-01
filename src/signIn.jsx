@@ -20,19 +20,19 @@ export const SignIn = () => {
 
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
-    const [isEmployee, setIsEmployee] = useState(true); 
+    const [isEmployee, setIsEmployee] = useState(
+        sessionStorage.getItem("locationBeforeSignIn") !== '/post'
+    );
     const [errors, setErrors] = useState({}); // To store error input messages
     const errorValues = Object.values(errors);
 
     const handleRadioButtonChange = (event) => {
-        // setIsEmployee(event.target.id === 'employee');
-        // console.log(isEmployee)
         if (document.getElementById('employer').checked) {
             setIsEmployee(false)
-          } else {
+        } else {
             setIsEmployee(true)
-          }
-          
+        }
+
     };
     const validation = {
 
@@ -75,6 +75,7 @@ export const SignIn = () => {
             sessionStorage.setItem("isEmployee", isEmployee)
             navigate(sessionStorage.getItem("locationBeforeSignIn"))
 
+
         }).catch((err) => {
 
             console.log(err.code);
@@ -108,7 +109,6 @@ export const SignIn = () => {
 
             if (userData) {
                 const decryptedPassword = decrypt(userData.uPassword);
-
                 if (userData.uPassword === '') {
                     if (userPassword.length < 6)
 
@@ -143,8 +143,6 @@ export const SignIn = () => {
             await updateDoc(userRef, {
                 uPassword: pass
             });
-            console.log("update successful")
-
         } catch (error) {
             console.error("Error updating field:", error);
         }
@@ -165,19 +163,22 @@ export const SignIn = () => {
             <NavBar />
             <div className='job_portal_signin'>
                 <div className='signin_box'>
-                    <div className='signin_box_head'>
-                        <h2 className=''>Sign In as</h2>
-                        <div className='signin_method'>
-                            <div className='employee_radiio'>
-                                <input type="radio" id='employee' defaultChecked={true} name='employ' onChange={(e) =>{handleRadioButtonChange(e)}} />
-                                <label htmlFor="employee">Employee</label>
-                            </div>
-                            <div className='employee_radiio'>
-                                <input type="radio" id='employer' name='employ' onChange={(e) =>{handleRadioButtonChange(e)}}/>
-                                <label htmlFor="employer">Employer</label>
+                    {!isEmployee && <h2 className=''>Sign In</h2>}
+                    {isEmployee &&
+                        <div className='signin_box_head'>
+                            <h2 className=''>Sign In as</h2>
+                            <div className='signin_method'>
+                                <div className='employee_radiio'>
+                                    <input type="radio" id='employee' defaultChecked={true} name='employ' onChange={(e) => { handleRadioButtonChange(e) }} />
+                                    <label htmlFor="employee">Employee</label>
+                                </div>
+                                <div className='employee_radiio'>
+                                    <input type="radio" id='employer' name='employ' onChange={(e) => { handleRadioButtonChange(e) }} />
+                                    <label htmlFor="employer">Employer</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                     <div className='sinin_form_field'>
                         <div className='job_apply_field'>
                             <label htmlFor='email' className='job_form_field'>Email</label>

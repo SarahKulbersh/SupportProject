@@ -13,6 +13,8 @@ import './styles/inputError.css'
 import * as CryptoJS from 'crypto-js'
 
 export const SignUp = () => {
+    const lastLocation = sessionStorage.getItem("locationBeforeSignIn")
+
     const navigate = useNavigate();
 
     const [userEmail, setEmail] = useState("");
@@ -20,7 +22,9 @@ export const SignUp = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [errors, setErrors] = useState({}); // To store error messages
-    const [isEmployee, setIsEmployee] = useState(true); 
+    const [isEmployee, setIsEmployee] = useState(
+        sessionStorage.getItem("locationBeforeSignIn") !== '/post'
+    );
 
     const errorValues = Object.values(errors);
 
@@ -121,6 +125,9 @@ export const SignUp = () => {
 
     // sign in with google
     const signInGoogle = async () => {
+        if (lastLocation === '/post') {
+            setIsEmployee(false)
+        }
 
         await signInWithPopup(userAuth, userAuthWithGoogle).then((userCredential) => {
 
@@ -162,19 +169,22 @@ export const SignUp = () => {
             <NavBar />
             <div className='job_portal_signin signup'>
                 <div className='signin_box'>
-                    <div className='signin_box_head'>
-                        <h2 className=''>Sign Up as</h2>
-                        <div className='signin_method'>
-                            <div className='employee_radiio'>
-                                <input type="radio" id='employee' defaultChecked={true} name='employ' onChange={(e) =>{handleRadioButtonChange(e)}}/>
-                                <label htmlFor="employee">Employee</label>
-                            </div>
-                            <div className='employee_radiio'>
-                                <input type="radio" id='employer' name='employ' onChange={(e) =>{handleRadioButtonChange(e)}} />
-                                <label htmlFor="employer">Employer</label>
+                    {!isEmployee && <h2 className=''>Sign Up</h2>}
+                    {isEmployee &&
+                        <div className='signin_box_head'>
+                            <h2 className=''>Sign Up as</h2>
+                            <div className='signin_method'>
+                                <div className='employee_radiio'>
+                                    <input type="radio" id='employee' defaultChecked={true} name='employ' onChange={(e) => { handleRadioButtonChange(e) }} />
+                                    <label htmlFor="employee">Employee</label>
+                                </div>
+                                <div className='employee_radiio'>
+                                    <input type="radio" id='employer' name='employ' onChange={(e) => { handleRadioButtonChange(e) }} />
+                                    <label htmlFor="employer">Employer</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                     <div className='sinin_form_field'>
                         <div className='d-flex justify-content-lg-between gap-3'>
                             <div className='job_apply_field'>

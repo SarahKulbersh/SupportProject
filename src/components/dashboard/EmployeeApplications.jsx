@@ -5,12 +5,10 @@ import { database } from "../../firebaseConfig";
 
 export const EmployeeApplication = () => {
 
-
     const [jobs, setJobs] = useState([])
     const [jobsLength, setJobLength] = useState(0);
     const [page, setPage] = useState(1);
     const jobsPerPage = 5
-
 
     function extractDateTime(str) {
         const string = str + ''
@@ -41,6 +39,7 @@ export const EmployeeApplication = () => {
             console.log(err)
         }
     }
+    
     const fetchApplications = async () => {
         const userId = sessionStorage.getItem("userId");
         const arrayDocs = [];
